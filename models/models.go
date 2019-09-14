@@ -3,78 +3,98 @@ package models
 import "time"
 
 type Student struct {
-	ID int
+	ID int `json:"-"`
 
-	Grade int `sql:",unique:gcn"`
-	Class int `sql:",unique:gcn"`
-	Number int `sql:",unique:gcn"`
+	// payload
+	Grade  int `sql:",unique:gcn" sql:",notnull" json:"grade"`
+	Class  int `sql:",unique:gcn" sql:",notnull" json:"class"`
+	Number int `sql:",unique:gcn" sql:",notnull" json:"number"`
 
-	Name string
-	BarcodeID string `sql:",unique"`
+	// payload
+	Name      string `sql:",notnull" sql:"type:varchar(7)" json:"name"`
+	BarcodeID string `sql:",unique" sql:",notnull" sql:"type:char(5)" json:"barcode_id"`
 
-	Coin int
+	// payload
+	Coin int `sql:",notnull" sql:"default:0" json:"coin"`
 
-	UpdatedAt time.Time
-}
-
-type Seller struct {
-	ID int
-	StudentID int `sql:",unique"`
-	Student *Student
-
-	LoginID string `sql:",unique"`
-	PinCode int
-
-	BoothID int
-	Booth *Booth
-
-	CreatedAt *time.Time `sql:"default:time.Now()"`
-}
-
-type Product struct {
-	ID int
-	Name string
-	Price int
+	UpdatedAt time.Time `json:"-"`
 }
 
 type Booth struct {
-	ID int
-	Name string
-	Sellers []*Seller
-	Products []*Product
+	ID int `json:"-"`
 
-	Coin int
+	// payload
+	Name string `sql:",notnull" json:"name"`
+	Coin int    `sql:"default:0" json:"coin"`
 
-	UpdateAt *time.Time
+	Sellers  []*Seller  `json:"sellers,omitempty"`
+	Products []*Product `json:"products,omitempty"`
+
+	UpdatedAt *time.Time `json:"-"`
+}
+
+type Product struct {
+	// payload
+	ID    string `json:"id"`
+	Name  string `sql:",notnull" json:"name"`
+	Price int    `sql:"default:0" json:"price"`
+
+	BoothID int `json:"-"`
+}
+
+type Seller struct {
+	ID        int      `json:"-"`
+	StudentID int      `sql:",unique" sql:",notnull" json:"-"`
+	Student   *Student `json:"student,omitempty"`
+
+	// payload
+	LoginID string `sql:",unique" sql:",notnull" json:"login_id"`
+	BoothID int    `sql:",notnull" json:"-"`
+	Booth   *Booth `json:"booth,omitempty"`
+
+	Pin string `sql:",notnull" sql:"type:char(6)" json:"-"`
+
+	// Normal Seller: 0
+	// Admin: 1
+	Permission int `sql:"default:0" json:"-"`
+
+	CreatedAt *time.Time `sql:"default:now()" json:"-"`
 }
 
 type Session struct {
-	ID int
-	SellerID int
-	Seller *Seller
+	// payload
+	ID string
 
-	UUID string
-	CreatedAt time.Time
+	SellerID int
+	Seller   *Seller
+
+	CreatedAt time.Time `sql:"default:now()"`
 	DeletedAt time.Time `pg:",soft_delete"`
 }
 
 type AccessLog struct {
-	ID int
-	Date time.Time
-	SellerID int
-	Path string
-	IP string
+	ID        int
+	Date      time.Time
+	Path      string
+	SessionID int
+	IP        string
 	UserAgent string
 }
 
-type PayLog struct {
-	ID int
-	Date time.Time
+type Order struct {
+	// payload
+	ID   string
+	Date time.Time `sql:"default:now()"`
 
-	StudentID, SellerID int
+	// payload
+	StudentID, SellerID            int
+	SubTotal, Discount, GrandTotal int
+
+	// payload
 	Products []*Product
-	Price, Discount, Total int
 
+	// payload
 	IsCanceled bool
+
 	AccessLogID int
 }

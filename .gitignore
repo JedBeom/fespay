@@ -1,3 +1,5 @@
 .idea/
 fespay
 config.json
+.cache/
+students.csv
