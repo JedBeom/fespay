@@ -12,7 +12,7 @@ func routes(e *echo.Echo) {
 	// /api/login does not need auth process
 	e.POST("/api/v1/login", postLogin)
 
-	api := e.Group("/api/v1", MiddlewareKeyCheck)
+	api := e.Group("/api/v1", MiddlewareTokenCheck, MiddlewareLogger)
 	{
 		// But /api/logout does need auth process
 		api.GET("/logout", getLogout)
@@ -25,12 +25,12 @@ func routes(e *echo.Echo) {
 		api.POST("/product", postProducts)
 		// api.GET("/product/me", getProductsMe)
 		// api.GET("/product/:id", getProductByID)
-		// 구현 계획 없음: api.PUT("/product", putProduct)
+		// 구현 계획 미정: api.PUT("/product/:id", putProduct)
 
-		// api.GET("/order/me", getOrdersMe)
-		// api.GET("/order/:id", getOrderByID)
-		// api.POST("/order", postOrder)
-		// api.DELETE("/order/:id", getOrderByID)
+		api.GET("/order/me", getOrdersMe)
+		api.GET("/order/:id", getOrderByID)
+		api.POST("/order", postOrder)
+		api.DELETE("/order/:id", deleteOrderByID)
 
 		api.GET("/student/:barcode", getStudentByBarcodeID)
 	}

@@ -13,10 +13,10 @@ func postLogin(c echo.Context) error {
 		Pin string `json:"pin" query:"pin"`
 	}{}
 	if err := c.Bind(&payload); err != nil {
-		return echo.ErrInternalServerError
+		return echo.ErrBadRequest
 	}
 
-	seller, err := models.SellerByLoginID(db, payload.ID)
+	seller, err := models.SellerByLoginIDWithBooth(db, payload.ID)
 	if err != nil {
 		return echo.ErrInternalServerError
 	}
@@ -32,14 +32,18 @@ func postLogin(c echo.Context) error {
 		}, JSONIndent)
 	}
 
-	return ErrorLoginFailed
+	return ErrLoginFailed
 
 }
 
 func getLogout(c echo.Context) error {
-	sess, ok := c.Get("sess").(models.Session)
+	sessID, ok := c.Get("sess_id").(string)
 	if !ok {
 		return echo.ErrInternalServerError
+	}
+
+	sess := models.Session{
+		ID: sessID,
 	}
 
 	if err := sess.Delete(db); err != nil {

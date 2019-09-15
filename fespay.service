@@ -1,0 +1,15 @@
+[Service]
+User=username
+Group=usergroup
+WorkingDirectory=/path/to/fespay
+ExecStart=/path/to/fespay/fespay
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=FESPAY
+
+Restart=always
+RestartSec=5s
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

@@ -18,7 +18,7 @@ func postProducts(c echo.Context) error {
 	}
 
 	if err := c.Bind(&bindProducts); err != nil {
-		return echo.ErrInternalServerError
+		return echo.ErrBadRequest
 	}
 
 	if err := models.InsertProducts(db, seller.BoothID, &bindProducts.Products); err != nil {

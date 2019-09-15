@@ -1,5 +1,13 @@
 # FESPAY
 
-## 참고자료
+## Run
 
-- 학생 csv COPY 가능 [godoc](https://godoc.org/github.com/go-pg/pg#example-DB-CopyFrom)
+```shell script
+go build
+cp .env.example .env
+vi .env
+vi fespay.service
+sudo cp fespay.service /etc/systemd/system/
+sudo service fespay start
+```
+

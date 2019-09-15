@@ -15,10 +15,6 @@ func getSellerMe(c echo.Context) error {
 
 	return c.JSONPretty(http.StatusOK, KeyValue{
 		"login_id": seller.LoginID,
-		"booth": KeyValue{
-			"name": seller.Booth.Name,
-			"coin": seller.Booth.Coin,
-		},
 	}, JSONIndent)
 }
 

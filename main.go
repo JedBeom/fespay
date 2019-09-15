@@ -7,5 +7,6 @@ const Namespace = "fespay.aligo.space"
 
 func main() {
 	connectDB()
+	insertStudentsIfNotExists(db)
 	run()
 }

@@ -2,4 +2,4 @@
 fespay
 config.json
 .cache/
-students.csv
+*.csv

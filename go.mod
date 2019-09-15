@@ -7,6 +7,7 @@ require (
 	github.com/go-pg/pg v8.0.6+incompatible
 	github.com/google/uuid v1.1.1
 	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/lithammer/shortuuid v3.0.0+incompatible

@@ -1,6 +1,4 @@
-DROP TABLE IF EXISTS students, booths, products, sellers,
-    sessions, access_logs, orders;
-
+DROP TABLE IF EXISTS students;
 CREATE TABLE students
 (
     id         SERIAL PRIMARY KEY,
@@ -15,6 +13,7 @@ CREATE TABLE students
     updated_at TIMESTAMPTZ
 );
 
+DROP TABLE IF EXISTS booths;
 CREATE TABLE booths
 (
     id         SERIAL PRIMARY KEY,
@@ -24,6 +23,7 @@ CREATE TABLE booths
     updated_at TIMESTAMPTZ
 );
 
+DROP TABLE IF EXISTS products;
 CREATE TABLE products
 (
     id       TEXT PRIMARY KEY NOT NULL,
@@ -34,6 +34,7 @@ CREATE TABLE products
     FOREIGN KEY (booth_id) REFERENCES booths (id)
 );
 
+DROP TABLE IF EXISTS sellers;
 CREATE TABLE sellers
 (
     id         SERIAL PRIMARY KEY,
@@ -51,6 +52,7 @@ CREATE TABLE sellers
     FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE RESTRICT
 );
 
+DROP TABLE IF EXISTS sessions;
 CREATE TABLE sessions
 (
     id         TEXT PRIMARY KEY NOT NULL,
@@ -60,12 +62,13 @@ CREATE TABLE sessions
     deleted_at TIMESTAMPTZ
 );
 
+DROP TABLE IF EXISTS access_logs;
 CREATE TABLE access_logs
 (
-    id         SERIAL PRIMARY KEY,
+    id         TEXT PRIMARY KEY,
     date       TIMESTAMPTZ DEFAULT current_timestamp,
     path       TEXT NOT NULL,
-    session_id TEXT NOT NULL,
+    session_id TEXT,
     user_agent TEXT NOT NULL,
     ip         TEXT NOT NULL,
 
@@ -73,21 +76,35 @@ CREATE TABLE access_logs
     FOREIGN KEY (session_id) REFERENCES sessions (id)
 );
 
+DROP TABLE IF EXISTS orders CASCADE;
 CREATE TABLE orders
 (
-    id          TEXT PRIMARY KEY,
-    date        TIMESTAMPTZ      DEFAULT current_timestamp,
+    id            TEXT PRIMARY KEY,
+    date          TIMESTAMPTZ      DEFAULT current_timestamp,
 
-    student_id  INTEGER NOT NULL,
-    seller_id   INTEGER NOT NULL,
+    student_id    INTEGER NOT NULL,
+    seller_id     INTEGER NOT NULL,
+    booth_id      INTEGER NOT NULL,
 
-    sub_total   INTEGER NOT NULL,
-    discount    INTEGER NOT NULL DEFAULT 0,
-    grand_total INTEGER NOT NULL,
+    sub_total     INTEGER NOT NULL,
+    discount      INTEGER NOT NULL DEFAULT 0,
+    grand_total   INTEGER NOT NULL,
 
-    is_canceled BOOL    NOT NULL DEFAULT false,
+    is_canceled   BOOL    NOT NULL DEFAULT false,
+    access_log_id TEXT    NOT NULL,
 
     FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE RESTRICT,
-    FOREIGN KEY (seller_id) REFERENCES sellers (id) ON DELETE RESTRICT
+    FOREIGN KEY (seller_id) REFERENCES sellers (id) ON DELETE RESTRICT,
+    FOREIGN KEY (access_log_id) REFERENCES access_logs (id) ON DELETE RESTRICT
+);
 
-)
+DROP TABLE IF EXISTS orders_to_products;
+CREATE TABLE orders_to_products
+(
+    order_id   TEXT,
+    product_id TEXT,
+    amount     INTEGER NOT NULL DEFAULT 1,
+    PRIMARY KEY (order_id, product_id),
+    FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE RESTRICT
+);

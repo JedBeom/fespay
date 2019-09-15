@@ -15,7 +15,7 @@ func getStudentByBarcodeID(c echo.Context) error {
 
 	student, err := models.StudentByBarcodeID(db, barcodeID)
 	if err != nil {
-		return echo.ErrNotFound
+		return ErrStudentNotFound
 	}
 
 	return c.JSONPretty(http.StatusOK, student, JSONIndent)
