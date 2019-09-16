@@ -1,6 +1,4 @@
 [Service]
-User=username
-Group=usergroup
 WorkingDirectory=/path/to/fespay
 ExecStart=/path/to/fespay/fespay
 StandardOutput=syslog

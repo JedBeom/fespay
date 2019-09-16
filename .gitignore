@@ -3,3 +3,4 @@ fespay
 config.json
 .cache/
 *.csv
+.env
