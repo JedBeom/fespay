@@ -19,20 +19,20 @@ func routes(e *echo.Echo) {
 
 		api.GET("/me", getMine)
 
-		api.GET("/seller/me", getSellerMe)
-		api.GET("/booth/me", getBoothMe)
+		api.GET("/sellers/me", getSellerMe)
+		api.GET("/booths/me", getBoothMe)
 
-		api.POST("/product", postProducts)
+		api.POST("/products", postProducts)
 		// api.GET("/product/me", getProductsMe)
 		// api.GET("/product/:id", getProductByID)
 		// 구현 계획 미정: api.PUT("/product/:id", putProduct)
 
-		api.GET("/order/me", getOrdersMe)
-		api.GET("/order/:id", getOrderByID)
-		api.POST("/order", postOrder)
-		api.DELETE("/order/:id", deleteOrderByID)
+		api.GET("/orders/me", getOrdersMe)
+		api.GET("/orders/:id", getOrderByID)
+		api.POST("/orders", postOrder)
+		api.DELETE("/orders/:id", deleteOrderByID)
 
-		api.GET("/student/:barcode", getStudentByBarcodeID)
+		api.GET("/students/:barcode", getStudentByBarcodeID)
 	}
 
 }
