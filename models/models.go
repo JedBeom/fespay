@@ -2,109 +2,90 @@ package models
 
 import "time"
 
-type Student struct {
-	ID int `json:"-"`
+type UserType int
 
-	Grade  int `sql:",unique:gcn" sql:",notnull" json:"grade"`
-	Class  int `sql:",unique:gcn" sql:",notnull" json:"class"`
-	Number int `sql:",unique:gcn" sql:",notnull" json:"number"`
+const (
+	UserStudent UserType = iota + 1
+	UserTeacher
+)
 
-	Name      string `sql:",notnull" sql:"type:varchar(7)" json:"name"`
-	BarcodeID string `sql:",unique" sql:",notnull" sql:"type:char(5)" json:"barcode_id"`
+type Status int
 
-	Coin int `sql:",notnull" sql:"default:0" json:"coin"`
+const (
+	StatusWorking = iota
+	StatusFrozen  // Frozen(동결): 로그인, 조회 등은 가능. 결제, 수정 등의 행동 불가
+	StatusBlocked // Blocked(차단): 모든 것이 불가. 유저 입장에서는 삭제된 것과 마찬가지.
+)
 
-	UpdatedAt time.Time `json:"-"`
+type User struct {
+	ID       string
+	WalletID string
+	BoothID  string
+	LoginID  string
+	Password string
+
+	Type UserType
+
+	Grade    int
+	Class    int
+	Number   int
+	Name     string
+	CardCode string
+
+	Status    Status
+	UpdatedAt time.Time
 }
 
 type Booth struct {
-	ID int `json:"-"`
-
-	Name string `sql:",notnull" json:"name"`
-	Coin int    `sql:"default:0" json:"coin"`
-
-	Sellers  []*Seller  `json:"sellers,omitempty"`
-	Products []*Product `json:"products,omitempty"`
-
-	UpdatedAt time.Time `json:"-"`
+	ID          string
+	WalletID    string
+	Name        string
+	Description string
+	Staffs      []*User
+	Status      Status
+	UpdatedAt   time.Time
 }
 
-type Product struct {
-	ID    string `json:"id"`
-	Name  string `sql:",notnull" json:"name"`
-	Price int    `sql:"default:0" json:"price"`
+type OwnerType int
 
-	BoothID int `json:"-"`
-}
+const (
+	OwnerUser = iota + 1
+	OwnerBooth
+)
 
-type Seller struct {
-	ID        int      `json:"-"`
-	StudentID int      `sql:",unique" sql:",notnull" json:"-"`
-	Student   *Student `json:"student,omitempty"`
-
-	LoginID string `sql:",unique" sql:",notnull" json:"login_id"`
-	BoothID int    `sql:",notnull" json:"-"`
-	Booth   *Booth `json:"booth,omitempty"`
-
-	Pin string `sql:",notnull" sql:"type:char(6)" json:"-"`
-
-	// Normal Seller: 0
-	// Admin: 1
-	Permission int `sql:"default:0" json:"-"`
-
-	CreatedAt *time.Time `sql:"default:now()" json:"-"`
-}
-
-type Session struct {
-	ID string
-
-	SellerID int
-	Seller   *Seller
-
-	CreatedAt time.Time `sql:"default:now()"`
-	DeletedAt time.Time `pg:",soft_delete"`
-}
-
-type AccessLog struct {
-	ID   string    `sql:",notnull"`
-	Date time.Time `sql:"default:now(),notnull"`
-	Path string    `sql:",notnull"`
-
-	SessionID string
-	Session   *Session
-
-	IP        string `sql:",notnull"`
-	UserAgent string `sql:",notnull"`
+type Wallet struct {
+	ID        string
+	OwnerType OwnerType
+	OwnerID   string
+	Coin      int
+	UpdatedAt time.Time
 }
 
 type Order struct {
-	ID   string    `json:"id" sql:",notnull"`
-	Date time.Time `sql:"default:now()" json:"date" sql:",notnull"`
+	ID            string
+	StaffID       string
+	FromID        string
+	ToID          string
+	Amount        int
+	RefundOrderID string
 
-	StudentID int      `json:"-" sql:",notnull"`
-	Student   *Student `json:"student,omitempty"`
-
-	BoothID int    `json:"-" sql:",notnull"`
-	Booth   *Booth `json:"-"`
-
-	SellerID int     `json:"-" sql:",notnull"`
-	Seller   *Seller `json:"seller,omitempty"`
-
-	SubTotal   int `json:"sub_total" sql:",notnull"`
-	Discount   int `json:"discount" sql:",notnull" sql:"default:0"`
-	GrandTotal int `json:"grand_total" sql:",notnull"`
-
-	Products []*Product `json:"products,omitempty" pg:"many2many:orders_to_products"`
-
-	IsCanceled bool `json:"is_canceled" sql:"default:false"`
-
-	AccessLogID string     `json:"-" sql:",notnull"`
-	AccessLog   *AccessLog `json:"-"`
+	AccessLogID string
+	CreatedAt   time.Time
 }
 
-type OrderToProduct struct {
-	tableName struct{} `sql:"orders_to_products"`
-	OrderID   string   `sql:",pk"`
-	ProductID string   `sql:",pk"`
-	Amount    int      `sql:"default:1"`
+type AccessLog struct {
+	ID        string
+	SessionID string
+	IP        string
+	Action    string
+	Path      string
+	CreatedAt time.Time
+}
+
+type Session struct {
+	ID        string
+	UserID    string
+	UserAgent string
+	CreatedAt time.Time
+	DeletedAt time.Time
 }

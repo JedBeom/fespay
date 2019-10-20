@@ -1,62 +1,60 @@
-DROP TABLE IF EXISTS students;
-CREATE TABLE students
+DROP TABLE IF EXISTS wallets;
+CREATE TABLE wallets
 (
-    id         SERIAL PRIMARY KEY,
-    grade      INTEGER           NOT NULL,
-    class      INTEGER           NOT NULL,
-    number     INTEGER           NOT NULL,
-    unique (grade, class, number),
-    name       VARCHAR(7)        NOT NULL,
-    barcode_id CHAR(5) UNIQUE,
-    coin       INTEGER DEFAULT 0 NOT NULL,
-
+    id         TEXT PRIMARY KEY,
+    owner_type INTEGER NOT NULL,
+    owner_id   TEXT    NOT NULL UNIQUE,
+    coin       INTEGER DEFAULT 0,
     updated_at TIMESTAMPTZ
 );
+
 
 DROP TABLE IF EXISTS booths;
 CREATE TABLE booths
 (
-    id         SERIAL PRIMARY KEY,
-    name       VARCHAR(15)       NOT NULL UNIQUE,
-    coin       INTEGER DEFAULT 0 NOT NULL,
+    id          TEXT PRIMARY KEY,
+    wallet_id   TEXT        NOT NULL,
+    name        VARCHAR(15) NOT NULL UNIQUE,
+    description VARCHAR(200),
 
-    updated_at TIMESTAMPTZ
+    status      INTEGER DEFAULT 0,
+    updated_at  TIMESTAMPTZ,
+
+    FOREIGN KEY (wallet_id) REFERENCES wallets (id)
 );
 
-DROP TABLE IF EXISTS products;
-CREATE TABLE products
+DROP TABLE IF EXISTS users;
+CREATE TABLE users
 (
-    id       TEXT PRIMARY KEY NOT NULL,
-    name     VARCHAR(13)      NOT NULL,
-    price    INTEGER          NOT NULL,
-    booth_id INTEGER          NOT NULL,
+    id         TEXT PRIMARY KEY,
 
-    FOREIGN KEY (booth_id) REFERENCES booths (id)
-);
+    wallet_id  TEXT,
+    booth_id   TEXT,
+    password   TEXT,
+    type       INTEGER    NOT NULL,
 
-DROP TABLE IF EXISTS sellers;
-CREATE TABLE sellers
-(
-    id         SERIAL PRIMARY KEY,
-    student_id INTEGER               NOT NULL UNIQUE,
-    booth_id   INTEGER               NOT NULL,
+    card_code  CHAR(5) UNIQUE,
+    grade      INTEGER,
+    class      INTEGER,
+    number     INTEGER,
+    unique (grade, class, number),
+    name       VARCHAR(7) NOT NULL,
 
-    login_id   TEXT                  NOT NULL UNIQUE,
-    pin        CHAR(6)               NOT NULL,
+    status     INTEGER DEFAULT 0,
+    updated_at TIMESTAMPTZ,
 
-    permission INTEGER     DEFAULT 0 NOT NULL,
-
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (booth_id) REFERENCES booths (id) ON DELETE RESTRICT,
-    FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE RESTRICT
+    FOREIGN KEY (booth_id) REFERENCES booths (id),
+    FOREIGN KEY (wallet_id) REFERENCES wallets (id)
 );
 
 DROP TABLE IF EXISTS sessions;
 CREATE TABLE sessions
 (
     id         TEXT PRIMARY KEY NOT NULL,
-    seller_id  TEXT             NOT NULL,
+    user_id    TEXT             NOT NULL,
+    user_agent TEXT             NOT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users (id),
 
     created_at TIMESTAMPTZ DEFAULT current_timestamp,
     deleted_at TIMESTAMPTZ
@@ -66,45 +64,33 @@ DROP TABLE IF EXISTS access_logs;
 CREATE TABLE access_logs
 (
     id         TEXT PRIMARY KEY,
-    date       TIMESTAMPTZ DEFAULT current_timestamp,
-    path       TEXT NOT NULL,
-    session_id TEXT,
-    user_agent TEXT NOT NULL,
+    session_id TEXT NOT NULL,
     ip         TEXT NOT NULL,
+    action     TEXT NOT NULL,
+    path       TEXT NOT NULL,
 
+    created_at TIMESTAMPTZ DEFAULT current_timestamp,
 
-    FOREIGN KEY (session_id) REFERENCES sessions (id)
+    FOREIGN KEY (session_id) REFERENCES sessions (id) ON DELETE RESTRICT
 );
 
 DROP TABLE IF EXISTS orders CASCADE;
 CREATE TABLE orders
 (
-    id            TEXT PRIMARY KEY,
-    date          TIMESTAMPTZ      DEFAULT current_timestamp,
+    id              TEXT PRIMARY KEY,
 
-    student_id    INTEGER NOT NULL,
-    seller_id     INTEGER NOT NULL,
-    booth_id      INTEGER NOT NULL,
+    staff_id        TEXT    NOT NULL,
+    from_id         TEXT    NOT NULL,
+    to_id           TEXT    NOT NULL,
+    amount          INTEGER NOT NULL,
+    refund_order_id TEXT,
 
-    sub_total     INTEGER NOT NULL,
-    discount      INTEGER NOT NULL DEFAULT 0,
-    grand_total   INTEGER NOT NULL,
+    access_log_id   TEXT    NOT NULL,
+    created_at      TIMESTAMPTZ DEFAULT current_timestamp,
 
-    is_canceled   BOOL    NOT NULL DEFAULT false,
-    access_log_id TEXT    NOT NULL,
-
-    FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE RESTRICT,
-    FOREIGN KEY (seller_id) REFERENCES sellers (id) ON DELETE RESTRICT,
+    FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE RESTRICT,
+    FOREIGN KEY (from_id) REFERENCES wallets (id) ON DELETE RESTRICT,
+    FOREIGN KEY (to_id) REFERENCES wallets (id) ON DELETE RESTRICT,
+    FOREIGN KEY (refund_order_id) REFERENCES orders (id) ON DELETE CASCADE,
     FOREIGN KEY (access_log_id) REFERENCES access_logs (id) ON DELETE RESTRICT
-);
-
-DROP TABLE IF EXISTS orders_to_products;
-CREATE TABLE orders_to_products
-(
-    order_id   TEXT,
-    product_id TEXT,
-    amount     INTEGER NOT NULL DEFAULT 1,
-    PRIMARY KEY (order_id, product_id),
-    FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE RESTRICT
 );
