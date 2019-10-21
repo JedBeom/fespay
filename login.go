@@ -16,7 +16,7 @@ func postLogin(c echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	seller, err := models.SellerByLoginIDWithBooth(db, payload.ID)
+	seller, err := models.UserByLoginIDWithBooth(db, payload.ID)
 	if err != nil {
 		return echo.ErrInternalServerError
 	}

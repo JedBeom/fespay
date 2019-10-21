@@ -1,11 +1,8 @@
 package models
 
-import (
-	"github.com/go-pg/pg"
-)
+import "github.com/go-pg/pg"
 
-func BoothBySeller(db *pg.DB, seller *Seller) (booth Booth, err error) {
-	booth.ID = seller.BoothID
-	err = db.Model(&booth).WherePK().Relation("Products").Relation("Sellers").Select()
+func BoothByID(db *pg.DB, id string) (b Booth, err error) {
+	err = db.Model(&b).Where("id = ?", id).Select()
 	return
 }

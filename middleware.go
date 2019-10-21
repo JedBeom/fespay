@@ -15,7 +15,7 @@ func MiddlewareTokenCheck(next echo.HandlerFunc) echo.HandlerFunc {
 		if key == "" {
 			return echo.NewHTTPError(http.StatusBadRequest)
 		}
-		sess, seller, err := models.SessionAndSellerByUUID(db, key)
+		sess, seller, err := models.SessionAndUserByID(db, key)
 		if err != nil || seller.ID == 0 {
 			return echo.NewHTTPError(http.StatusUnauthorized, "bad key")
 		}
@@ -39,7 +39,6 @@ func MiddlewareLogger(next echo.HandlerFunc) echo.HandlerFunc {
 			Path:      c.Path(),
 			SessionID: sess,
 			IP:        c.RealIP(),
-			UserAgent: c.Request().UserAgent(),
 		}
 
 		if err := access.Create(db); err != nil {

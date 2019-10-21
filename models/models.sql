@@ -17,7 +17,7 @@ CREATE TABLE booths
     name        VARCHAR(15) NOT NULL UNIQUE,
     description VARCHAR(200),
 
-    status      INTEGER DEFAULT 0,
+    status      INTEGER DEFAULT 1,
     updated_at  TIMESTAMPTZ,
 
     FOREIGN KEY (wallet_id) REFERENCES wallets (id)
@@ -40,7 +40,7 @@ CREATE TABLE users
     unique (grade, class, number),
     name       VARCHAR(7) NOT NULL,
 
-    status     INTEGER DEFAULT 0,
+    status     INTEGER DEFAULT 1,
     updated_at TIMESTAMPTZ,
 
     FOREIGN KEY (booth_id) REFERENCES booths (id),
@@ -81,12 +81,13 @@ CREATE TABLE orders
 
     staff_id        TEXT    NOT NULL,
     from_id         TEXT    NOT NULL,
-    to_id           TEXT    NOT NULL,
+    to_id           TEXT,
     amount          INTEGER NOT NULL,
     refund_order_id TEXT,
 
     access_log_id   TEXT    NOT NULL,
     created_at      TIMESTAMPTZ DEFAULT current_timestamp,
+    closed_at       TIMESTAMPTZ,
 
     FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE RESTRICT,
     FOREIGN KEY (from_id) REFERENCES wallets (id) ON DELETE RESTRICT,

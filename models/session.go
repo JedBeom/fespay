@@ -5,27 +5,27 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s Seller) NewSession(db *pg.DB) (sess Session, err error) {
-	sess.SellerID = s.ID
-	sess.ID = uuid.New().String()
-	err = db.Insert(&sess)
+func (u User) NewSession(db *pg.DB) (s Session, err error) {
+	s.UserID = u.ID
+	s.ID = uuid.New().String()
+	err = db.Insert(&s)
 	return
 }
 
-func SessionByUUID(db *pg.DB, uuid string) (sess Session, err error) {
-	err = db.Model(&sess).Where("id = ?", uuid).Select()
+func SessionByID(db *pg.DB, id string) (sess Session, err error) {
+	err = db.Model(&sess).Where("id = ?", id).Select()
 	return
 }
 
-func SessionAndSellerByUUID(db *pg.DB, uuid string) (sess Session, seller Seller, err error) {
-	sess, err = SessionByUUID(db, uuid)
+func SessionAndUserByID(db *pg.DB, id string) (sess Session, user User, err error) {
+	sess, err = SessionByID(db, id)
 	if err != nil || sess.ID == "" {
 		return
 	}
 
-	seller.ID = sess.SellerID
+	user.ID = sess.UserID
 
-	err = db.Model(&seller).WherePK().Relation("Booth").Select()
+	err = db.Model(&user).WherePK().Relation("Booth").Select()
 	return
 }
 

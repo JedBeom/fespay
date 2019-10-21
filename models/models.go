@@ -12,37 +12,41 @@ const (
 type Status int
 
 const (
-	StatusWorking = iota
+	StatusWorking = iota + 1
 	StatusFrozen  // Frozen(동결): 로그인, 조회 등은 가능. 결제, 수정 등의 행동 불가
 	StatusBlocked // Blocked(차단): 모든 것이 불가. 유저 입장에서는 삭제된 것과 마찬가지.
 )
 
 type User struct {
-	ID       string
+	ID string
+
 	WalletID string
+	Wallet   *Wallet
 	BoothID  string
+	Booth    *Booth
 	LoginID  string
 	Password string
 
-	Type UserType
+	Type UserType `sql:",notnull"`
 
-	Grade    int
-	Class    int
-	Number   int
-	Name     string
-	CardCode string
+	Grade    int    `sql:",unique:gcn"`
+	Class    int    `sql:",unique:gcn"`
+	Number   int    `sql:",unique:gcn"`
+	Name     string `sql:",unique" sql:",notnull"`
+	CardCode string `sql:",unique" sql:",notnull" sql:"type:char(5)"`
 
-	Status    Status
+	Status    Status `sql:"default:1"`
 	UpdatedAt time.Time
 }
 
 type Booth struct {
 	ID          string
 	WalletID    string
-	Name        string
-	Description string
+	Wallet      *Wallet
+	Name        string `sql:",unique" sql:",notnull" sql:"type:varchar(15)"`
+	Description string `sql:"type:varchar(200)"`
 	Staffs      []*User
-	Status      Status
+	Status      Status `sql:"default:1"`
 	UpdatedAt   time.Time
 }
 
@@ -55,27 +59,34 @@ const (
 
 type Wallet struct {
 	ID        string
-	OwnerType OwnerType
-	OwnerID   string
-	Coin      int
+	OwnerType OwnerType `sql:",notnull"`
+	OwnerID   string    `sql:",notnull" sql:",unique"`
+	Coin      int       `sql:"default:0"`
 	UpdatedAt time.Time
 }
 
 type Order struct {
 	ID            string
-	StaffID       string
-	FromID        string
+	StaffID       string `sql:",notnull"`
+	Staff         *User
+	FromID        string `sql:",notnull"`
+	From          *Wallet
 	ToID          string
-	Amount        int
+	To            *Wallet
+	Amount        int `sql:",notnull"`
 	RefundOrderID string
+	RefundOrder   *Order
 
-	AccessLogID string
-	CreatedAt   time.Time
+	AccessLogID string `sql:",notnull"`
+	AccessLog   *AccessLog
+	CreatedAt   time.Time `sql:"default:now()"`
+	ClosedAt    time.Time
 }
 
 type AccessLog struct {
 	ID        string
 	SessionID string
+	Session   *Session
 	IP        string
 	Action    string
 	Path      string
@@ -85,7 +96,8 @@ type AccessLog struct {
 type Session struct {
 	ID        string
 	UserID    string
+	User      *User
 	UserAgent string
 	CreatedAt time.Time
-	DeletedAt time.Time
+	DeletedAt time.Time `pg:",soft_delete"`
 }
