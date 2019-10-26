@@ -101,3 +101,16 @@ type Session struct {
 	CreatedAt time.Time
 	DeletedAt time.Time `pg:",soft_delete"`
 }
+
+type Action int
+
+const (
+	ActionRegister = iota + 1
+)
+
+type Token struct {
+	ID          string
+	Action      Action
+	AccessLogID string
+	AccessLog   *AccessLog
+}

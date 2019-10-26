@@ -13,15 +13,15 @@ func MiddlewareTokenCheck(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		key := c.Request().Header.Get(KeyHeaderKey)
 		if key == "" {
-			return echo.NewHTTPError(http.StatusBadRequest)
+			return echo.ErrUnauthorized
 		}
-		sess, seller, err := models.SessionAndUserByID(db, key)
-		if err != nil || seller.ID == 0 {
+		s, u, err := models.SessionAndUserByID(db, key)
+		if err != nil || u.ID == "" {
 			return echo.NewHTTPError(http.StatusUnauthorized, "bad key")
 		}
 
-		c.Set("sess_id", sess.ID)
-		c.Set("seller", seller)
+		c.Set("sess_id", s.ID)
+		c.Set("user", u)
 
 		return next(c)
 	}

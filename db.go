@@ -5,7 +5,6 @@ import (
 
 	"github.com/JedBeom/fespay/models"
 	"github.com/go-pg/pg"
-	"github.com/go-pg/pg/orm"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -20,12 +19,10 @@ func connectDB() {
 		Password: password,
 		Database: database,
 	})
-
-	orm.RegisterTable(&models.OrderToProduct{})
 }
 
-func insertStudentsIfNotExists(db *pg.DB) {
-	ok, err := db.Model(&models.Student{}).Where("class = 3").Exists()
+func insertUsersIfNotExists(db *pg.DB) {
+	ok, err := db.Model(&models.User{}).Where("class = 3").Exists()
 	if err != nil {
 		panic(err)
 	}
@@ -40,7 +37,7 @@ func insertStudentsIfNotExists(db *pg.DB) {
 		panic(err)
 	}
 
-	if err := models.CopyStudentsCSV(db, file); err != nil {
+	if err := models.CopyUsersCSV(db, file); err != nil {
 		panic(err)
 	}
 }
