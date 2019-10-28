@@ -12,9 +12,9 @@ const (
 type Status int
 
 const (
-	StatusWorking = iota + 1
-	StatusFrozen  // Frozen(동결): 로그인, 조회 등은 가능. 결제, 수정 등의 행동 불가
-	StatusBlocked // Blocked(차단): 모든 것이 불가. 유저 입장에서는 삭제된 것과 마찬가지.
+	StatusWorking   = iota + 1
+	StatusFrozen    // Frozen(동결): 로그인, 조회 등은 가능. 결제, 수정 등의 행동 불가
+	StatusSuspended // Suspended(정지): 모든 것이 불가. 유저 입장에서는 삭제된 것과 마찬가지.
 )
 
 type User struct {
@@ -66,10 +66,10 @@ type Wallet struct {
 }
 
 type Order struct {
-	ID            string
-	StaffID       string `sql:",notnull"`
+	ID            string `json:"id"`
+	StaffID       string `sql:",notnull" json:"staffID"`
 	Staff         *User
-	FromID        string `sql:",notnull"`
+	FromID        string `sql:",notnull" json:"fromID"`
 	From          *Wallet
 	ToID          string
 	To            *Wallet
@@ -88,7 +88,7 @@ type AccessLog struct {
 	SessionID string
 	Session   *Session
 	IP        string
-	Action    string
+	Method    string
 	Path      string
 	CreatedAt time.Time
 }

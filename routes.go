@@ -8,13 +8,14 @@ import (
 func routes(e *echo.Echo) {
 	e.Use(echoMw.Recover())
 	e.Use(echoMw.RequestID())
+	e.Use(MiddlewareLogger)
 
 	// /api/login does not need auth process
 	e.POST("/api/v1/login", postLogin)
 	e.GET("/api/v1/register/available", getAvailable)
 	e.PATCH("/api/v1/register", patchRegister)
 
-	api := e.Group("/api/v1", MiddlewareTokenCheck, MiddlewareLogger)
+	api := e.Group("/api/v1", MiddlewareTokenCheck)
 	{
 		// But /api/logout does need auth process
 		api.GET("/logout", getLogout)
@@ -22,6 +23,7 @@ func routes(e *echo.Echo) {
 		api.GET("/me", getMine)
 
 		api.GET("/orders/me", getMyOrders)
+		api.GET("/orders/booth", getMyBoothOrders)
 		api.GET("/orders/:id", getOrderByID)
 		api.POST("/orders", postOrder)
 		api.PATCH("/orders/:id", patchOrderByID)

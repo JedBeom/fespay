@@ -66,7 +66,7 @@ CREATE TABLE access_logs
     id         TEXT PRIMARY KEY,
     session_id TEXT NOT NULL,
     ip         TEXT NOT NULL,
-    action     TEXT NOT NULL,
+    method     TEXT NOT NULL,
     path       TEXT NOT NULL,
 
     created_at TIMESTAMPTZ DEFAULT current_timestamp,
@@ -85,7 +85,7 @@ CREATE TABLE orders
     amount          INTEGER NOT NULL,
     refund_order_id TEXT,
 
-    access_log_id   TEXT    NOT NULL,
+    access_log_id   TEXT,
     created_at      TIMESTAMPTZ DEFAULT current_timestamp,
     closed_at       TIMESTAMPTZ,
 
@@ -93,5 +93,5 @@ CREATE TABLE orders
     FOREIGN KEY (from_id) REFERENCES wallets (id) ON DELETE RESTRICT,
     FOREIGN KEY (to_id) REFERENCES wallets (id) ON DELETE RESTRICT,
     FOREIGN KEY (refund_order_id) REFERENCES orders (id) ON DELETE CASCADE,
-    FOREIGN KEY (access_log_id) REFERENCES access_logs (id) ON DELETE RESTRICT
+    -- FOREIGN KEY (access_log_id) REFERENCES access_logs (id) ON DELETE RESTRICT
 );

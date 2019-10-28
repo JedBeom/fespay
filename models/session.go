@@ -5,9 +5,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func (u User) NewSession(db *pg.DB) (s Session, err error) {
+func (u User) NewSession(db *pg.DB, ua string) (s Session, err error) {
 	s.UserID = u.ID
 	s.ID = uuid.New().String()
+	s.UserAgent = ua
 	err = db.Insert(&s)
 	return
 }
@@ -23,9 +24,7 @@ func SessionAndUserByID(db *pg.DB, id string) (sess Session, user User, err erro
 		return
 	}
 
-	user.ID = sess.UserID
-
-	err = db.Model(&user).WherePK().Relation("Booth").Select()
+	user, err = UserByID(db, id, true)
 	return
 }
 

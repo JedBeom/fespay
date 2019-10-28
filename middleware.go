@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/JedBeom/fespay/models"
 	"github.com/labstack/echo"
 )
@@ -17,7 +15,7 @@ func MiddlewareTokenCheck(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		s, u, err := models.SessionAndUserByID(db, key)
 		if err != nil || u.ID == "" {
-			return echo.NewHTTPError(http.StatusUnauthorized, "bad key")
+			return ErrInvalidKey.Send(c)
 		}
 
 		c.Set("sess_id", s.ID)
@@ -29,22 +27,23 @@ func MiddlewareTokenCheck(next echo.HandlerFunc) echo.HandlerFunc {
 
 func MiddlewareLogger(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		sess, ok := c.Get("sess_id").(string)
-		if !ok {
-			return echo.ErrInternalServerError
-		}
 
 		access := models.AccessLog{
-			ID:        c.Response().Header().Get(echo.HeaderXRequestID),
-			Path:      c.Path(),
-			SessionID: sess,
-			IP:        c.RealIP(),
+			ID:     c.Response().Header().Get(echo.HeaderXRequestID),
+			Method: c.Scheme(),
+			Path:   c.Path(),
+			IP:     c.RealIP(),
+		}
+		err := next(c)
+		sID, ok := c.Get("sess_id").(string)
+		if ok {
+			access.SessionID = sID
 		}
 
 		if err := access.Create(db); err != nil {
-			return echo.ErrInternalServerError
+			echo.Logger.Error("Access Logging:", err)
 		}
+		return err
 
-		return next(c)
 	}
 }

@@ -21,7 +21,7 @@ func getAvailable(c echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
-	status := http.StatusFound
+	status := http.StatusOK
 	if !res.IsAvailable {
 		status = http.StatusNotFound
 	}

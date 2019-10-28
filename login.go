@@ -8,31 +8,29 @@ import (
 )
 
 func postLogin(c echo.Context) error {
-	payload := struct {
-		ID  string `json:"id" query:"id"`
-		Pin string `json:"pin" query:"pin"`
+	p := struct {
+		LoginID  string `json:"loginID"`
+		Password string `json:"password"`
 	}{}
-	if err := c.Bind(&payload); err != nil {
-		return echo.ErrBadRequest
+	if err := c.Bind(&p); err != nil {
+		return ErrLoginFailed.Send(c)
 	}
 
-	seller, err := models.UserByLoginIDWithBooth(db, payload.ID)
+	u, err := models.UserByLoginID(db, p.LoginID)
 	if err != nil {
-		return echo.ErrInternalServerError
+		return ErrLoginFailed.Send(c)
 	}
 
-	if seller.Pin == payload.Pin {
-		sess, err := seller.NewSession(db)
-		if err != nil {
-			return echo.ErrInternalServerError
+	if u.Password == models.Encrypt(p.Password) {
+		sess, err := u.NewSession(db, c.Request().UserAgent())
+		if err == nil {
+			return c.JSONPretty(200, Map{
+				"token": sess.ID,
+			}, JSONIndent)
 		}
-
-		return c.JSONPretty(200, KeyValue{
-			"uuid": sess.ID,
-		}, JSONIndent)
 	}
 
-	return ErrLoginFailed
+	return ErrLoginFailed.Send(c)
 
 }
 
@@ -50,8 +48,8 @@ func getLogout(c echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
-	return c.JSONPretty(http.StatusOK, KeyValue{
-		"message": "logout success",
+	return c.JSONPretty(http.StatusOK, Map{
+		"message": "log out success",
 	}, JSONIndent)
 
 }

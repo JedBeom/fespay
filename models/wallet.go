@@ -6,6 +6,12 @@ import (
 	"github.com/go-pg/pg"
 )
 
+func WalletByID(db *pg.DB, id string) (w Wallet, err error) {
+	w.ID = id
+	err = db.Model(&w).WherePK().Select()
+	return
+}
+
 func (w *Wallet) Create(db *pg.DB) error {
 	if w.OwnerID == "" {
 		return FieldError{message: "OwnerID is blank"}
@@ -15,7 +21,7 @@ func (w *Wallet) Create(db *pg.DB) error {
 	default:
 		return FieldError{"invalid OwnerType"}
 	case OwnerUser:
-		u, err := UserByID(db, w.OwnerID)
+		u, err := UserByID(db, w.OwnerID, false)
 		if err != nil || u.ID == "" {
 			return err
 		}
