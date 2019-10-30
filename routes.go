@@ -10,26 +10,27 @@ func routes(e *echo.Echo) {
 	e.Use(echoMw.RequestID())
 	e.Use(MiddlewareLogger)
 
-	// /api/login does not need auth process
-	e.POST("/api/v1/login", postLogin)
 	e.GET("/api/v1/register/available", getAvailable)
 	e.PATCH("/api/v1/register", patchRegister)
+	e.POST("/api/v1/login", postLogin)
 
 	api := e.Group("/api/v1", MiddlewareTokenCheck)
 	{
-		// But /api/logout does need auth process
 		api.GET("/logout", getLogout)
 
-		api.GET("/me", getMine)
+		api.GET("/user", getMine)
 
-		api.GET("/orders/me", getMyOrders)
-		api.GET("/orders/booth", getMyBoothOrders)
-		api.GET("/orders/:id", getOrderByID)
-		api.POST("/orders", postOrder)
-		api.PATCH("/orders/:id", patchOrderByID)
+		api.GET("/booths/:id", getBoothByID)
+		api.GET("/booths/:id/records", getRecordsByBoothID)
+
+		api.GET("/records/:id", getRecordByID)
+		api.POST("/records", postRecord)
+		api.PATCH("/records/:id", patchRecordByID)
+		api.DELETE("/records/:id", deleteRecordByID)
 
 		api.GET("/users/:id", getUserByID)
 		api.GET("/users/card/:code", getUserByCardCode)
+		api.GET("/users/:id/records", getRecordsByUserID)
 	}
 
 }

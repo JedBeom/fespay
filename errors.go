@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/JedBeom/fespay/models"
+
+	"github.com/go-pg/pg"
+
 	"github.com/labstack/echo"
 )
 
@@ -30,17 +34,47 @@ func (e ApiError) Error() string {
 }
 
 var (
-	ErrUnknown = NewApiError(502, -10, "unknown error was aborted")
+	ErrUnknown   = NewApiError(502, -10, "unknown error was aborted")
+	ErrDBErr     = NewApiError(http.StatusInternalServerError, -11, "error occur")
+	ErrInterface = NewApiError(http.StatusInternalServerError, -12, "err occur")
 
-	ErrLoginFailed = NewApiError(http.StatusUnauthorized, -100, "loginID or password is invalid")
-	ErrInvalidKey  = NewApiError(http.StatusUnauthorized, -101, "bad uuid key")
+	ErrLoginFailed    = NewApiError(http.StatusUnauthorized, -100, "loginID or password is invalid")
+	ErrInvalidKey     = NewApiError(http.StatusUnauthorized, -101, "bad uuid key")
+	ErrEntityNotFound = NewApiError(http.StatusNotFound, -102, "entity not found")
+	ErrField          = NewApiError(http.StatusUnprocessableEntity, -103, "field error")
 
 	ErrUserNotInBooth = NewApiError(http.StatusForbidden, -200, "user isn't in a booth")
 
-	ErrInvalidAmount        = NewApiError(http.StatusBadRequest, -301, "amount should be in the unit of 100")
-	ErrRefundOrderIDInvalid = NewApiError(http.StatusNotFound, -302, "refundOrderID is invalid")
-	ErrRefundRefunding      = NewApiError(http.StatusBadRequest, -303, "refunding order can't be refunded")
-	ErrRefundedAgain        = NewApiError(http.StatusBadRequest, -304, "refunded order is being refunded again")
-	ErrUserWalletIDInvalid  = NewApiError(http.StatusBadRequest, -305, "userWalletID is invalid")
-	ErrBoothToBoothOrder    = NewApiError(http.StatusBadRequest, -306, "booth2booth order isn't supported")
+	ErrInvalidAmount   = NewApiError(http.StatusBadRequest, -301, "amount should be in the unit of 100")
+	ErrInvalidCardCode = NewApiError(http.StatusNotFound, -305, "invalid cardCode")
 )
+
+func err2ApiErr(err error) ApiError {
+	apiError, ok := err.(ApiError)
+	if ok {
+		return apiError
+	}
+
+	_, ok = err.(pg.Error)
+	if ok {
+		return ErrDBErr
+	}
+
+	fieldErr, ok := err.(models.FieldError)
+	if ok {
+		ef := ErrField
+		ef.Message = fieldErr.Error()
+		return ef
+	}
+
+	echoErr, ok := err.(*echo.HTTPError)
+	if ok {
+		return NewApiError(echoErr.Code, 0, http.StatusText(echoErr.Code))
+	}
+
+	if err == pg.ErrNoRows {
+		return ErrEntityNotFound
+	}
+
+	return ErrUnknown
+}

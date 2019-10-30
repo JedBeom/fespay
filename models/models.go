@@ -20,8 +20,6 @@ const (
 type User struct {
 	ID string
 
-	WalletID string
-	Wallet   *Wallet
 	BoothID  string
 	Booth    *Booth
 	LoginID  string
@@ -34,6 +32,7 @@ type User struct {
 	Number   int    `sql:",unique:gcn"`
 	Name     string `sql:",unique" sql:",notnull"`
 	CardCode string `sql:",unique" sql:",notnull" sql:"type:char(5)"`
+	Coin     int    `sql:"default:0"`
 
 	Status    Status `sql:"default:1"`
 	UpdatedAt time.Time
@@ -41,46 +40,40 @@ type User struct {
 
 type Booth struct {
 	ID          string
-	WalletID    string
-	Wallet      *Wallet
 	Name        string `sql:",unique" sql:",notnull" sql:"type:varchar(15)"`
 	Description string `sql:"type:varchar(200)"`
+	Location    string `json:"location"`
+	Coin        int    `sql:"default:0"`
 	Staffs      []*User
-	Status      Status `sql:"default:1"`
-	UpdatedAt   time.Time
+	Status      Status    `sql:"default:1" json:"status"`
+	UpdatedAt   time.Time `json:"updatedAt,omitempty"`
 }
 
-type OwnerType int
+type RecordType int
 
 const (
-	OwnerUser = iota + 1
-	OwnerBooth
+	RecordCharge RecordType = iota + 1
+	RecordOrder
 )
 
-type Wallet struct {
-	ID        string
-	OwnerType OwnerType `sql:",notnull"`
-	OwnerID   string    `sql:",notnull" sql:",unique"`
-	Coin      int       `sql:"default:0"`
-	UpdatedAt time.Time
-}
+type Record struct {
+	ID      string `json:"id"`
+	StaffID string `sql:",notnull" json:"staffID"`
+	Staff   *User  `json:"-"`
+	BoothID string `sql:",notnull" json:"boothID"`
+	Booth   *Booth `json:"-"`
+	UserID  string `json:"userID,omitempty"`
+	User    *User  `json:"-"`
+	Amount  int    `sql:",notnull" json:"amount"`
 
-type Order struct {
-	ID            string `json:"id"`
-	StaffID       string `sql:",notnull" json:"staffID"`
-	Staff         *User
-	FromID        string `sql:",notnull" json:"fromID"`
-	From          *Wallet
-	ToID          string
-	To            *Wallet
-	Amount        int `sql:",notnull"`
-	RefundOrderID string
-	RefundOrder   *Order
+	Type RecordType `json:"type"`
 
-	AccessLogID string `sql:",notnull"`
-	AccessLog   *AccessLog
-	CreatedAt   time.Time `sql:"default:now()"`
-	ClosedAt    time.Time
+	AccessLogID string     `sql:",notnull" json:"-"`
+	AccessLog   *AccessLog `json:"-"`
+
+	CreatedAt  time.Time `sql:"default:now()" json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt,omitempty"`
+	CanceledAt time.Time `json:"canceledAt,omitempty"`
 }
 
 type AccessLog struct {

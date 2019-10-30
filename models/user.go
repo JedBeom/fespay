@@ -25,12 +25,6 @@ func userByColumn(db *pg.DB, column, value string, fillAll bool) (u User, err er
 		}
 	}
 
-	if u.WalletID != "" {
-		if w, err := WalletByID(db, u.WalletID); err == nil {
-			u.Wallet = &w
-		}
-	}
-
 	return
 }
 
@@ -76,6 +70,11 @@ func Encrypt(pw string) string {
 func (u *User) Register(db *pg.DB) error {
 	u.Password = Encrypt(u.Password)
 	return db.Update(u)
+}
+
+func UserByIDForUpdate(tx *pg.Tx, id string) (u User, err error) {
+	err = tx.Model(&u).Where("id = ?", id).For("UPDATE").Select()
+	return
 }
 
 func CopyUsersCSV(db *pg.DB, file io.Reader) (err error) {

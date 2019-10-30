@@ -10,9 +10,8 @@ import (
 func getMine(c echo.Context) error {
 	u, ok := c.Get("user").(models.User)
 	if !ok {
-		return echo.ErrInternalServerError
+		return ErrInterface.Send(c)
 	}
 
 	return c.JSONPretty(http.StatusOK, u, JSONIndent)
-
 }

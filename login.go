@@ -37,7 +37,7 @@ func postLogin(c echo.Context) error {
 func getLogout(c echo.Context) error {
 	sessID, ok := c.Get("sess_id").(string)
 	if !ok {
-		return echo.ErrInternalServerError
+		return ErrInterface.Send(c)
 	}
 
 	sess := models.Session{
