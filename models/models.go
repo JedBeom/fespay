@@ -72,7 +72,7 @@ type Record struct {
 	AccessLog   *AccessLog `json:"-"`
 
 	CreatedAt  time.Time `sql:"default:now()" json:"createdAt"`
-	UpdatedAt  time.Time `json:"updatedAt,omitempty"`
+	PaidAt     time.Time `json:"paidAt,omitempty"`
 	CanceledAt time.Time `json:"canceledAt,omitempty"`
 }
 

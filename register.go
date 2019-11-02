@@ -16,7 +16,7 @@ func getAvailable(c echo.Context) error {
 	res.CardCode = c.QueryParam("code")
 
 	var err error
-	res.IsAvailable, err = models.CheckCardAvailable(db, res.CardCode)
+	res.IsAvailable, err = models.CanCardRegistered(db, res.CardCode)
 	if err != nil {
 		return echo.ErrInternalServerError
 	}
@@ -44,9 +44,27 @@ func patchRegister(c echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	isAvailable, err := models.CheckCardAvailable(db, p.CardCode)
+	isAvailable, err := models.CanCardRegistered(db, p.CardCode)
 	if err != nil || !isAvailable {
 		return echo.ErrBadRequest
 	}
 
+	u, err := models.UserByCardCode(db, p.CardCode)
+	if err != nil {
+		return err2ApiErr(err).Send(c)
+	}
+
+	if u.Grade != p.Grade || u.Name != p.Name {
+		return echo.ErrNotFound
+	}
+
+	u.LoginID = p.LoginID
+	u.Password = p.Password
+	if err := u.Register(db); err != nil {
+		return err2ApiErr(err).Send(c)
+	}
+
+	return c.JSONPretty(http.StatusOK, Map{
+		"message": "register successful",
+	}, JSONIndent)
 }

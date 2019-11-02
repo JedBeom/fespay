@@ -83,10 +83,11 @@ func (r *Record) Pay(tx *pg.Tx) error {
 		return err
 	}
 
+	now := time.Now()
 	u.Coin -= r.Amount
-	u.UpdatedAt = time.Now()
+	u.UpdatedAt = now
 	b.Coin += r.Amount
-	b.UpdatedAt = time.Now()
+	b.UpdatedAt = now
 
 	if err := tx.Update(u); err != nil {
 		return err
@@ -105,5 +106,83 @@ func (r *Record) PayAndCreate(db *pg.DB) error {
 		}
 
 		return r.CreateTx(tx)
+	})
+}
+
+func (r *Record) Charge(tx *pg.Tx) error {
+	u, err := UserByIDForUpdate(tx, r.UserID)
+	if err != nil {
+		return err
+	}
+
+	u.Coin += r.Amount
+	u.UpdatedAt = time.Now()
+	return tx.Update(&u)
+}
+
+func (r *Record) ChargeAndCreate(db *pg.DB) error {
+	return db.RunInTransaction(func(tx *pg.Tx) error {
+		if err := r.Charge(tx); err != nil {
+			return err
+		}
+
+		return r.CreateTx(tx)
+	})
+}
+
+func (r *Record) CancelOrder(db *pg.DB) error {
+	now := time.Now()
+	r.CanceledAt = now
+	if r.UserID == "" { // 돈 빼고 할 것도 없음
+		return db.Update(r)
+	}
+
+	return db.RunInTransaction(func(tx *pg.Tx) error {
+		u, err := UserByIDForUpdate(tx, r.UserID)
+		if err != nil {
+			return err
+		}
+
+		b, err := BoothByIDForUpdate(tx, r.BoothID)
+		if err != nil {
+			return err
+		}
+
+		u.Coin += r.Amount
+		b.Coin -= r.Amount
+		if b.Coin < 0 {
+			return NewFieldError("??? 부스에 돈이 없음")
+		}
+
+		u.UpdatedAt = now
+		b.UpdatedAt = now
+		if err := tx.Update(&u); err != nil {
+			return err
+		}
+		if err := tx.Update(&b); err != nil {
+			return err
+		}
+		return tx.Update(r)
+	})
+}
+
+func (r *Record) CancelCharge(db *pg.DB) error {
+	now := time.Now()
+	r.CanceledAt = now
+	return db.RunInTransaction(func(tx *pg.Tx) error {
+		u, err := UserByIDForUpdate(tx, r.UserID)
+		if err != nil {
+			return err
+		}
+
+		u.Coin -= r.Amount
+		if u.Coin < 0 {
+			return NewFieldError("user not enough coin")
+		}
+		u.UpdatedAt = now
+		if err := tx.Update(&u); err != nil {
+			return err
+		}
+		return tx.Update(r)
 	})
 }

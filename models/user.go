@@ -43,7 +43,7 @@ func UserByLoginID(db *pg.DB, loginID string) (u User, err error) {
 	return
 }
 
-func CheckCardAvailable(db *pg.DB, cardCode string) (bool, error) {
+func CanCardRegistered(db *pg.DB, cardCode string) (bool, error) {
 	u := User{}
 	err := db.Model(&u).Where("card_code = ?", cardCode).Select()
 	if u.ID == "" || err == pg.ErrNoRows || u.LoginID == "" {

@@ -14,8 +14,14 @@ func MiddlewareTokenCheck(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.ErrUnauthorized
 		}
 		s, u, err := models.SessionAndUserByID(db, key)
-		if err != nil || u.ID == "" {
+		if err != nil || u.ID == "" || u.Status == models.StatusSuspended {
 			return ErrInvalidKey.Send(c)
+		}
+
+		// 아예 부스 없는 척 해버리기~
+		if u.Booth.Status == models.StatusSuspended {
+			u.BoothID = ""
+			u.Booth = nil
 		}
 
 		c.Set("sess_id", s.ID)

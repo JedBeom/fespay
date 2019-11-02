@@ -44,9 +44,14 @@ var (
 	ErrField          = NewApiError(http.StatusUnprocessableEntity, -103, "field error")
 
 	ErrUserNotInBooth = NewApiError(http.StatusForbidden, -200, "user isn't in a booth")
+	ErrFrozenBooth    = NewApiError(http.StatusBadRequest, -201, "booth is frozen")
+	ErrFrozenUser     = NewApiError(http.StatusBadRequest, -202, "booth is frozen")
 
-	ErrInvalidAmount   = NewApiError(http.StatusBadRequest, -301, "amount should be in the unit of 100")
-	ErrInvalidCardCode = NewApiError(http.StatusNotFound, -305, "invalid cardCode")
+	ErrUnknownRecordType = NewApiError(http.StatusUnprocessableEntity, -300, "unknown record type")
+	ErrInvalidAmount     = NewApiError(http.StatusBadRequest, -301, "amount should be in the unit of 100")
+	ErrInvalidCardCode   = NewApiError(http.StatusNotFound, -305, "invalid cardCode")
+	ErrCancelingAgain    = NewApiError(http.StatusUnprocessableEntity, -310, "record was canceled before")
+	ErrExpiredRecord     = NewApiError(http.StatusUnprocessableEntity, -320, "record is expired")
 )
 
 func err2ApiErr(err error) ApiError {
