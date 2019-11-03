@@ -15,7 +15,7 @@ func postLogin(c echo.Context) error {
 		Password string `json:"password"`
 	}{}
 	if err := c.Bind(&p); err != nil {
-		return ErrLoginFailed.Send(c)
+		return echo.ErrBadRequest
 	}
 
 	u, err := models.UserByLoginID(db, p.LoginID)

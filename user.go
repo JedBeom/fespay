@@ -60,7 +60,7 @@ func patchUserByID(c echo.Context) error {
 	p := models.User{}
 
 	if err := c.Bind(&p); err != nil {
-		return ErrField.Send(c)
+		return echo.ErrBadRequest
 	}
 
 	if p.ID != "" || p.ID != tuID {

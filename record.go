@@ -100,7 +100,7 @@ func postRecord(c echo.Context) error {
 
 	// parse params
 	if err := c.Bind(&p); err != nil {
-		return ErrField.Send(c)
+		return echo.ErrBadRequest
 	}
 
 	// Check amount is valid

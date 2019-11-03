@@ -41,7 +41,7 @@ func patchBoothByID(c echo.Context) error {
 	tbID := c.Param("id")
 	p := models.Booth{}
 	if err := c.Bind(&p); err != nil {
-		return ErrField.Send(c)
+		return echo.ErrBadRequest
 	}
 
 	if p.ID != "" && tbID != p.ID {
