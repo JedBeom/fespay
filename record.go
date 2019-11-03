@@ -17,7 +17,7 @@ func getRecordsByUserID(c echo.Context) error {
 	}
 
 	userID := c.Param("id")
-	if u.BoothID != AdminBoothID || userID != u.ID {
+	if u.BoothID != AdminBoothID && userID != u.ID {
 		return echo.ErrForbidden
 	}
 
@@ -44,9 +44,11 @@ func getRecordsByBoothID(c echo.Context) error {
 
 	rs, err := models.RecordsByBoothID(db, boothID)
 	if err == pg.ErrNoRows {
-		return echo.NewHTTPError(http.StatusNotFound, "no records")
+		return ErrEntityNotFound.Send(c)
 	} else if err != nil {
 		return err2ApiErr(err).Send(c)
+	} else if len(rs) == 0 {
+		return ErrEntityNotFound.Send(c)
 	}
 
 	return c.JSONPretty(http.StatusOK, rs, JSONIndent)
@@ -81,7 +83,7 @@ func postRecord(c echo.Context) error {
 	}
 
 	// user can not create a record himself
-	if u.BoothID == "" {
+	if u.BoothID == "" || u.Booth == nil {
 		return ErrUserNotInBooth.Send(c)
 	}
 
@@ -134,7 +136,7 @@ func postRecord(c echo.Context) error {
 		}
 	case models.RecordOrder: // order
 		r.Type = models.RecordOrder
-		if p.CardCode == "" { // 선결제 생성인 경우
+		if p.CardCode != "" { // 선결제 생성인 경우
 			tu, err := models.UserByCardCode(db, p.CardCode) // get targetUser
 			if err != nil || tu.Status == models.StatusSuspended {
 				return ErrInvalidCardCode.Send(c)
@@ -145,7 +147,8 @@ func postRecord(c echo.Context) error {
 			}
 
 			r.UserID = tu.ID
-			r.PaidAt = time.Now()
+			now := time.Now()
+			r.PaidAt = &now
 			if err := r.PayAndCreate(db); err != nil {
 				return err2ApiErr(err).Send(c)
 			}
@@ -188,8 +191,21 @@ func deleteRecordByID(c echo.Context) error {
 		return echo.ErrForbidden
 	}
 
-	if !r.CanceledAt.IsZero() { // 이미 취소된 것이다
+	if r.CanceledAt != nil { // 이미 취소된 것이다
 		return ErrCancelingAgain.Send(c)
+	}
+
+	switch r.Type {
+	case models.RecordCharge:
+		err = r.CancelCharge(db)
+	case models.RecordOrder:
+		err = r.CancelOrder(db)
+	default:
+		return ErrUnknownRecordType.Send(c)
+	}
+
+	if err != nil {
+		return err2ApiErr(err).Send(c)
 	}
 
 	return c.JSONPretty(http.StatusOK, Map{
@@ -213,11 +229,13 @@ func patchRecordByID(c echo.Context) error {
 		return err2ApiErr(err).Send(c)
 	}
 
-	if !r.PaidAt.IsZero() {
+	if r.PaidAt != nil || r.CanceledAt != nil {
 		return ErrExpiredRecord.Send(c)
 	}
 
 	r.UserID = u.ID
+	now := time.Now()
+	r.PaidAt = &now
 	err = db.RunInTransaction(func(tx *pg.Tx) error {
 		if err := r.Pay(tx); err != nil {
 			return err

@@ -24,7 +24,7 @@ func SessionAndUserByID(db *pg.DB, id string) (sess Session, user User, err erro
 		return
 	}
 
-	user, err = UserByID(db, id, true)
+	user, err = UserByID(db, sess.UserID, true)
 	return
 }
 

@@ -28,7 +28,7 @@ func run() {
 		} else if sslMode == "MANUAL" {
 			e.Logger.Fatal(e.StartTLS(":443", os.Getenv("SSL_CRT"), os.Getenv("SSL_PRI")))
 		} else {
-			e.Logger.Fatal(e.Start(":80"))
+			e.Logger.Fatal(e.Start(os.Getenv("PORT")))
 		}
 	}()
 

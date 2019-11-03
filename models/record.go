@@ -85,15 +85,15 @@ func (r *Record) Pay(tx *pg.Tx) error {
 
 	now := time.Now()
 	u.Coin -= r.Amount
-	u.UpdatedAt = now
+	u.UpdatedAt = &now
 	b.Coin += r.Amount
-	b.UpdatedAt = now
+	b.UpdatedAt = &now
 
-	if err := tx.Update(u); err != nil {
+	if err := tx.Update(&u); err != nil {
 		return err
 	}
 
-	if err := tx.Update(b); err != nil {
+	if err := tx.Update(&b); err != nil {
 		return err
 	}
 	return nil
@@ -116,7 +116,8 @@ func (r *Record) Charge(tx *pg.Tx) error {
 	}
 
 	u.Coin += r.Amount
-	u.UpdatedAt = time.Now()
+	now := time.Now()
+	u.UpdatedAt = &now
 	return tx.Update(&u)
 }
 
@@ -132,7 +133,7 @@ func (r *Record) ChargeAndCreate(db *pg.DB) error {
 
 func (r *Record) CancelOrder(db *pg.DB) error {
 	now := time.Now()
-	r.CanceledAt = now
+	r.CanceledAt = &now
 	if r.UserID == "" { // 돈 빼고 할 것도 없음
 		return db.Update(r)
 	}
@@ -154,8 +155,8 @@ func (r *Record) CancelOrder(db *pg.DB) error {
 			return NewFieldError("??? 부스에 돈이 없음")
 		}
 
-		u.UpdatedAt = now
-		b.UpdatedAt = now
+		u.UpdatedAt = &now
+		b.UpdatedAt = &now
 		if err := tx.Update(&u); err != nil {
 			return err
 		}
@@ -168,7 +169,7 @@ func (r *Record) CancelOrder(db *pg.DB) error {
 
 func (r *Record) CancelCharge(db *pg.DB) error {
 	now := time.Now()
-	r.CanceledAt = now
+	r.CanceledAt = &now
 	return db.RunInTransaction(func(tx *pg.Tx) error {
 		u, err := UserByIDForUpdate(tx, r.UserID)
 		if err != nil {
@@ -179,7 +180,7 @@ func (r *Record) CancelCharge(db *pg.DB) error {
 		if u.Coin < 0 {
 			return NewFieldError("user not enough coin")
 		}
-		u.UpdatedAt = now
+		u.UpdatedAt = &now
 		if err := tx.Update(&u); err != nil {
 			return err
 		}

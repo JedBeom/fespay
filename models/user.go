@@ -1,8 +1,9 @@
 package models
 
 import (
-	"crypto/sha256"
 	"io"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/go-pg/pg"
 )
@@ -18,7 +19,7 @@ func userByColumn(db *pg.DB, column, value string, fillAll bool) (u User, err er
 	}
 
 	if u.BoothID != "" {
-		if b, err := BoothByID(db, u.BoothID); err == nil {
+		if b, err := BoothByID(db, u.BoothID, false); err == nil {
 			u.Booth = &b
 		} else {
 			return u, err
@@ -46,7 +47,7 @@ func UserByLoginID(db *pg.DB, loginID string) (u User, err error) {
 func CanCardRegistered(db *pg.DB, cardCode string) (bool, error) {
 	u := User{}
 	err := db.Model(&u).Where("card_code = ?", cardCode).Select()
-	if u.ID == "" || err == pg.ErrNoRows || u.LoginID == "" {
+	if u.ID == "" || err == pg.ErrNoRows || u.LoginID != "" {
 		return false, nil
 	}
 
@@ -62,13 +63,20 @@ func (u *User) UpdateByCardCode(db *pg.DB, code string) error {
 	return err
 }
 
-func Encrypt(pw string) string {
-	sum := sha256.Sum256([]byte(pw))
-	return string(sum[:])
+func Encrypt(pw string) (string, error) {
+	b, err := bcrypt.GenerateFromPassword([]byte(pw), 16)
+	if err != nil {
+		return "", err
+	}
+	return string(b[:]), nil
 }
 
 func (u *User) Register(db *pg.DB) error {
-	u.Password = Encrypt(u.Password)
+	var err error
+	u.Password, err = Encrypt(u.Password)
+	if err != nil {
+		return err
+	}
 	return db.Update(u)
 }
 

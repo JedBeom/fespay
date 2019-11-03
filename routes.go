@@ -22,6 +22,7 @@ func routes(e *echo.Echo) {
 
 		api.GET("/booths/:id", getBoothByID)
 		api.GET("/booths/:id/records", getRecordsByBoothID)
+		api.PATCH("/booths/:id", patchBoothByID)
 
 		api.GET("/records/:id", getRecordByID)
 		api.POST("/records", postRecord)
@@ -31,6 +32,7 @@ func routes(e *echo.Echo) {
 		api.GET("/users/:id", getUserByID)
 		api.GET("/users/card/:code", getUserByCardCode)
 		api.GET("/users/:id/records", getRecordsByUserID)
+		api.PATCH("/users/:id", patchUserByID)
 	}
 
 }

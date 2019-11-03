@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/JedBeom/fespay/models"
 	"github.com/labstack/echo"
 )
@@ -21,7 +23,7 @@ func postLogin(c echo.Context) error {
 		return ErrLoginFailed.Send(c)
 	}
 
-	if u.Password == models.Encrypt(p.Password) {
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(p.Password)); err == nil {
 		sess, err := u.NewSession(db, c.Request().UserAgent())
 		if err == nil {
 			return c.JSONPretty(200, Map{

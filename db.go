@@ -31,7 +31,7 @@ func insertUsersIfNotExists(db *pg.DB) {
 		return
 	}
 
-	loc := os.Getenv("STUDENT_CSV")
+	loc := os.Getenv("USER_CSV")
 	file, err := os.Open(loc)
 	if err != nil {
 		panic(err)

@@ -19,7 +19,7 @@ func MiddlewareTokenCheck(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		// 아예 부스 없는 척 해버리기~
-		if u.Booth.Status == models.StatusSuspended {
+		if u.Booth != nil && u.Booth.Status == models.StatusSuspended {
 			u.BoothID = ""
 			u.Booth = nil
 		}
@@ -36,7 +36,7 @@ func MiddlewareLogger(next echo.HandlerFunc) echo.HandlerFunc {
 
 		access := models.AccessLog{
 			ID:     c.Response().Header().Get(echo.HeaderXRequestID),
-			Method: c.Scheme(),
+			Method: c.Request().Method,
 			Path:   c.Path(),
 			IP:     c.RealIP(),
 		}
@@ -47,7 +47,7 @@ func MiddlewareLogger(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		if err := access.Create(db); err != nil {
-			echo.Logger.Error("Access Logging:", err)
+			c.Logger().Error("Access Logging:", err)
 		}
 		return err
 

@@ -25,7 +25,7 @@ func NewApiError(status int, code int, message string) ApiError {
 	}
 }
 
-func (e *ApiError) Send(c echo.Context) error {
+func (e ApiError) Send(c echo.Context) error {
 	return c.JSONPretty(e.StatusCode, e, JSONIndent)
 }
 
@@ -46,6 +46,8 @@ var (
 	ErrUserNotInBooth = NewApiError(http.StatusForbidden, -200, "user isn't in a booth")
 	ErrFrozenBooth    = NewApiError(http.StatusBadRequest, -201, "booth is frozen")
 	ErrFrozenUser     = NewApiError(http.StatusBadRequest, -202, "booth is frozen")
+	ErrUserMismatch   = NewApiError(http.StatusUnprocessableEntity, -210, "user id is mismatch")
+	ErrBoothMismatch  = NewApiError(http.StatusUnprocessableEntity, -211, "booth id is mismatch")
 
 	ErrUnknownRecordType = NewApiError(http.StatusUnprocessableEntity, -300, "unknown record type")
 	ErrInvalidAmount     = NewApiError(http.StatusBadRequest, -301, "amount should be in the unit of 100")

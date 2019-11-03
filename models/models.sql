@@ -19,6 +19,7 @@ CREATE TABLE users
 
     coin       INTEGER DEFAULT 0,
     booth_id   TEXT,
+    login_id   TEXT,
     password   TEXT,
     type       INTEGER    NOT NULL,
 
@@ -52,7 +53,7 @@ DROP TABLE IF EXISTS access_logs;
 CREATE TABLE access_logs
 (
     id         TEXT PRIMARY KEY,
-    session_id TEXT NOT NULL,
+    session_id TEXT,
     ip         TEXT NOT NULL,
     method     TEXT NOT NULL,
     path       TEXT NOT NULL,
@@ -72,9 +73,11 @@ CREATE TABLE records
     user_id       TEXT,
     amount        INTEGER NOT NULL,
 
+    type          INTEGER NOT NULL,
+
     access_log_id TEXT,
     created_at    TIMESTAMPTZ DEFAULT current_timestamp,
-    updated_at    TIMESTAMPTZ,
+    paid_at       TIMESTAMPTZ,
     canceled_at   TIMESTAMPTZ,
 
     FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE RESTRICT,
