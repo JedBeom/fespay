@@ -35,8 +35,8 @@ func patchRegister(c echo.Context) error {
 		Password string `json:"password"`
 		CardCode string `json:"cardCode"`
 
-		Grade int    `json:"grade"`
-		Name  string `json:"name"`
+		Number int    `json:"number"`
+		Name   string `json:"name"`
 	}{}
 
 	if err := c.Bind(&p); err != nil ||
@@ -54,7 +54,7 @@ func patchRegister(c echo.Context) error {
 		return err2ApiErr(err).Send(c)
 	}
 
-	if u.Grade != p.Grade || u.Name != p.Name {
+	if u.Number != p.Number || u.Name != p.Name {
 		return echo.ErrNotFound
 	}
 

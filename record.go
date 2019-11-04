@@ -251,3 +251,7 @@ func patchRecordByID(c echo.Context) error {
 		"message": "paid successfully",
 	}, JSONIndent)
 }
+
+func getRecords(c echo.Context) error {
+	return nil
+}

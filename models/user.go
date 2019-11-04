@@ -3,6 +3,8 @@ package models
 import (
 	"io"
 
+	"github.com/google/uuid"
+
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/go-pg/pg"
@@ -83,6 +85,49 @@ func (u *User) Register(db *pg.DB) error {
 func UserByIDForUpdate(tx *pg.Tx, id string) (u User, err error) {
 	err = tx.Model(&u).Where("id = ?", id).For("UPDATE").Select()
 	return
+}
+
+func UsersSearchName(db *pg.DB, like string, limit, page int) (us []User, err error) {
+	page -= 1
+	like = "%" + like + "%"
+	err = db.Model(&us).Where("name LIKE ?", like).
+		Limit(limit).Offset(page * limit).Order("updated_at DESC").Select()
+	if err != nil {
+		return
+	}
+
+	// 개선 필요
+	for i := range us {
+		if us[i].BoothID == "" {
+			continue
+		}
+		b, err := BoothByID(db, us[i].BoothID, false)
+		if err != nil {
+			return us, err
+		}
+
+		us[i].Booth = &b
+	}
+	return
+}
+
+func Users(db *pg.DB, column string, limit, page int) (us []User, err error) {
+	page -= 1
+	err = db.Model(&us).Order(column + " DESC").Relation("Booth").
+		Limit(limit).Offset(limit * page).Select()
+	return
+}
+
+func (u *User) Create(db *pg.DB) error {
+	u.ID = uuid.New().String()
+	if u.Password != "" {
+		var err error
+		u.Password, err = Encrypt(u.Password)
+		if err != nil {
+			return err
+		}
+	}
+	return db.Insert(u)
 }
 
 func CopyUsersCSV(db *pg.DB, file io.Reader) (err error) {

@@ -8,6 +8,41 @@ import (
 	"github.com/labstack/echo"
 )
 
+func getUsers(c echo.Context) error {
+	u, ok := c.Get("user").(models.User)
+	if !ok {
+		return ErrInterface.Send(c)
+	}
+
+	if u.BoothID != AdminBoothID {
+		return echo.ErrForbidden
+	}
+
+	p, err := parseGetParam(c)
+	if err != nil {
+		return err
+	}
+
+	var us []models.User
+	switch p.Column {
+	case "name":
+		if p.Like == "" {
+			return ErrField.Send(c)
+		}
+		us, err = models.UsersSearchName(db, p.Like, p.Limit, p.Page)
+	case "":
+		return ErrField.Send(c)
+	default:
+		us, err = models.Users(db, p.Column, p.Limit, p.Page)
+	}
+
+	if err != nil {
+		return err2ApiErr(err).Send(c)
+	}
+
+	return c.JSONPretty(http.StatusOK, us, JSONIndent)
+}
+
 func getUserByID(c echo.Context) error {
 	u, ok := c.Get("user").(models.User)
 	if !ok {
@@ -131,4 +166,27 @@ func patchUserByID(c echo.Context) error {
 	}
 
 	return c.JSONPretty(http.StatusOK, tu, JSONIndent)
+}
+
+func postUser(c echo.Context) error {
+	u, ok := c.Get("user").(models.User)
+	if !ok {
+		return ErrInterface.Send(c)
+	}
+
+	if u.BoothID != AdminBoothID {
+		return echo.ErrForbidden
+	}
+
+	tu := models.User{}
+	if err := c.Bind(&tu); err != nil {
+		return echo.ErrBadRequest
+	}
+
+	tu.Coin = 0
+	tu.Status = models.StatusWorking
+	if err := tu.Create(db); err != nil {
+		return err2ApiErr(err).Send(c)
+	}
+	return c.JSONPretty(http.StatusCreated, tu, JSONIndent)
 }
