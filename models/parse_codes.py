@@ -17,7 +17,7 @@ for line in f:
 
 output = io.open("output.csv", mode="w", encoding="UTF8", newline="\n")  # open file with newline="\n". 윈도우 망해라
 cw = csv.writer(output)
-cw.writerow(["id", "grade", "class", "number", "name", "card_code", "type"])  # header
+cw.writerow(["id", "grade", "class", "number", "name", "card_code", "pay_code", "type"])  # header
 
 
 def get_uuid():
@@ -55,7 +55,7 @@ for card_code, v in d.items():
     else:
         continue
 
-    cw.writerow([get_uuid(), g, c, num, name, card_code, user_type])
+    cw.writerow([get_uuid(), g, c, num, name, card_code, card_code, user_type])
     count += 1
 
 print(f"Wrote {count} rows.")

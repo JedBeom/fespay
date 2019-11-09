@@ -29,11 +29,11 @@ func getUsers(c echo.Context) error {
 		if p.Like == "" {
 			return ErrField.Send(c)
 		}
-		us, err = models.UsersSearchName(db, p.Like, p.Limit, p.Page)
+		us, err = models.UsersContainName(db, p.Like, p.Limit, p.Page)
 	case "":
 		return ErrField.Send(c)
 	default:
-		us, err = models.Users(db, p.Column, p.Limit, p.Page)
+		us, err = models.Users(db, p.Column, p.Like, p.Limit, p.Page)
 	}
 
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 
 func routes(e *echo.Echo) {
 	e.Pre(echoMw.RemoveTrailingSlash())
+	e.Use(echoMw.CORS())
 	e.Use(echoMw.Recover())
 	e.Use(echoMw.RequestID())
 	e.Use(MiddlewareLogger)

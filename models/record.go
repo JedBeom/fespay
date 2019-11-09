@@ -50,17 +50,66 @@ func (b *Booth) Records(db *pg.DB, all bool) (rs []Record, err error) {
 	if !all {
 		q.Where("canceled_at IS NULL")
 	}
-	err = q.Select()
+	if err := q.Select(); err != nil {
+		return rs, err
+	}
+	err = recordsFillUser(db, &rs)
 	return
+}
+
+func recordsFillUser(db *pg.DB, rs *[]Record) error {
+	rsV := *rs
+	users := map[string]User{}
+	for i := range rsV {
+		if u, ok := users[rsV[i].UserID]; ok {
+			rsV[i].User = &u
+			continue
+		}
+		u, err := UserByID(db, rsV[i].UserID, false)
+		if err != nil {
+			return err
+		}
+		users[u.ID] = u
+		rsV[i].User = &u
+	}
+	rs = &rsV
+	return nil
+}
+
+func recordsFillBooth(db *pg.DB, rs *[]Record) error {
+	rsV := *rs
+	booths := map[string]Booth{}
+	for i := range rsV {
+		if b, ok := booths[rsV[i].BoothID]; ok {
+			rsV[i].Booth = &b
+			continue
+		}
+		b, err := BoothByID(db, rsV[i].BoothID, false)
+		if err != nil {
+			return err
+		}
+		booths[b.ID] = b
+		rsV[i].Booth = &b
+	}
+	rs = &rsV
+	return nil
 }
 
 func RecordsByUserID(db *pg.DB, id string) (rs []Record, err error) {
 	err = db.Model(&rs).Where("user_id = ?", id).Select()
+	if err != nil {
+		return rs, err
+	}
+	err = recordsFillBooth(db, &rs)
 	return
 }
 
 func RecordsByBoothID(db *pg.DB, id string) (rs []Record, err error) {
 	err = db.Model(&rs).Where("booth_id = ?", id).Select()
+	if err != nil {
+		return
+	}
+	err = recordsFillUser(db, &rs)
 	return
 }
 

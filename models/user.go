@@ -87,7 +87,7 @@ func UserByIDForUpdate(tx *pg.Tx, id string) (u User, err error) {
 	return
 }
 
-func UsersSearchName(db *pg.DB, like string, limit, page int) (us []User, err error) {
+func UsersContainName(db *pg.DB, like string, limit, page int) (us []User, err error) {
 	page -= 1
 	like = "%" + like + "%"
 	err = db.Model(&us).Where("name LIKE ?", like).
@@ -111,9 +111,9 @@ func UsersSearchName(db *pg.DB, like string, limit, page int) (us []User, err er
 	return
 }
 
-func Users(db *pg.DB, column string, limit, page int) (us []User, err error) {
+func Users(db *pg.DB, column, like string, limit, page int) (us []User, err error) {
 	page -= 1
-	err = db.Model(&us).Order(column + " DESC").Relation("Booth").
+	err = db.Model(&us).Order(column + " " + like).Relation("Booth").
 		Limit(limit).Offset(limit * page).Select()
 	return
 }

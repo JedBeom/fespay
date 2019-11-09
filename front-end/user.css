@@ -1,0 +1,140 @@
+@font-face {
+    font-family: 'yangjin';
+    src: url('https://cdn.jsdelivr.net/gh/supernovice-lab/font@0.9/yangjin.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+}
+
+#app {
+    margin: 20px;
+    margin-top: 60px;
+}
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-size: 25px;
+    border-bottom: 1px dotted #555;
+    background-color: white;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.navbar .logo {
+    font-size: 25px;
+    color: red;
+}
+
+.navbar li {
+    float: left;
+}
+
+.navbar li a {
+    text-decoration: none;
+    color: #555;
+    text-align: center;
+    padding: 10px 10px;
+    font-family: 'yangjin', sans-serif;
+}
+
+.navbar .user {
+    float: right;
+}
+
+.refresh {
+    margin-bottom: 10px;
+    background-color: lightsalmon;
+    border: none;
+    color: white;
+    padding: 8px;
+    text-align: center;
+    left: 50%;
+    right: 50%;
+    text-decoration: none;
+    display: block;
+    font-size: 20px;
+    border-radius: 10px;
+}
+
+.box {
+    background-color: skyblue;
+    padding: 10px;
+    border-radius: 1.5vw;
+    display: block;
+    white-space: nowrap;
+    min-width: 50px;
+    max-width: 500px;
+    margin-bottom: 20px;
+}
+
+.box h2 {
+    font-size: 40px;
+    font-weight: 300;
+}
+
+.coin_amount {
+    text-align: right;
+    font-size: 40px;
+}
+
+.payment_history {
+    background-color: cyan;
+    font-weight: 300;
+}
+
+.payment_history table {
+    background-color: white;
+    width: 100%;
+}
+
+.payment_history tbody th {
+    font-weight: 300;
+}
+
+table, th, td {
+    border-bottom: 1px solid black;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: lightgreen;
+    font-weight: 500;
+}
+
+th, td {
+    padding: 5px;
+    text-align: center;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.canceled_record {
+    text-decoration-line: line-through;
+    color: grey;
+}
+
+.barcode {
+    background-color: pink;
+}
+
+.barcode_image {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

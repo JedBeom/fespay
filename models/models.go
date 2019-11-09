@@ -34,7 +34,8 @@ type User struct {
 	Number   int    `sql:",unique:gcn" json:"number,omitempty"`
 	Name     string `sql:",unique" sql:",notnull" sql:"type:varchar(7)" json:"name"`
 	CardCode string `sql:",unique" sql:",notnull" sql:"type:char(5)" json:"cardCode"`
-	Coin     int    `sql:"default:0" json:"coin"`
+	// PayCode  string `sql:",unique" sql:",notnull" json:"payCode"`
+	Coin int `sql:"default:0" json:"coin"`
 
 	Status    Status     `sql:"default:1" json:"status"`
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
@@ -42,7 +43,7 @@ type User struct {
 
 type Booth struct {
 	ID          string     `json:"id"`
-	Name        string     `sql:",unique" sql:",notnull" sql:"type:varchar(15)" json:"name"`
+	Name        string     `sql:",unique" sql:",notnull" sql:"type:varchar(10)" json:"name"`
 	Description string     `sql:"type:varchar(200)" json:"description"`
 	Location    string     `json:"location" json:"location"`
 	Coin        int        `sql:"default:0" json:"coin"`

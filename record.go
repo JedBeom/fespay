@@ -126,10 +126,14 @@ func postRecord(c echo.Context) error {
 			return ErrField.Send(c)
 		}
 
-		_, err := models.UserByCardCode(db, p.CardCode) // get targetUser
+		tu, err := models.UserByCardCode(db, p.CardCode) // get targetUser
 		if err != nil {
 			return ErrInvalidCardCode.Send(c)
 		}
+		r.UserID = tu.ID
+
+		now := time.Now()
+		r.PaidAt = &now
 
 		if err := r.ChargeAndCreate(db); err != nil {
 			return err2ApiErr(err).Send(c)
