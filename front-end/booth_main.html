@@ -1,56 +1,43 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:v-bind="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:300,400,500&display=swap" rel="stylesheet">
+    <link href='//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css' rel='stylesheet' type='text/css'>
     <title>FESPAY: 부스용</title>
     <link rel="stylesheet" href="/booth.css">
 </head>
 <body>
-<header>
+<nav>
     <ul class="navbar">
-        <li><a class="logo" href="/">부스용</a></li>
-        <li><a href="#">결제</a></li>
-        <li><a href="#">내역</a></li>
-        <li class="user"><a href="#">로그아웃</a></li>
+        <li><a class="logo" href="/">페스페이</a></li>
+        <li class="user"><a href="/">뒤로 가기</a></li>
     </ul>
-</header>
+</nav>
 <div id="app">
     <noscript>
         <div class="box alert">
-            <p>FESPAY는 JavaScript 없이는 작동하지 않습니다.<br>자바스크립트를 허용해 주십시오.</p>
+            <p>페스페이는 JavaScript 없이는 작동하지 않습니다.<br>자바스크립트를 허용해 주십시오.</p>
         </div>
     </noscript>
 
     <section>
-        <div class="box notify">
-            <p>{{ message }}</p>
-        </div>
-        <div class="box enter_amount">
+        <div class="enter_amount">
             <h2>결제할 금액</h2>
             <form autocomplete="off">
                 <label>
-                    <input type="text" v-model="amount" placeholder="ex) 2100" pattern="\d*" autofocus>
+                    <input type="text" v-model="amount" placeholder="ex) 2100" pattern="\d*" value="" autofocus
+                           v-bind:class="inputClass">
                     왕운 코인
                 </label>
-                <p>{{ filterAmount(amount) }}</p>
-                <div class="amount_next">
-                    <input type="button" value="다음">
-                </div>
             </form>
-        </div>
-        <div class="box">
-            <h2>스캔</h2>
-            <div id="scan"></div>
+            <p class="hangulAmount">{{ filterAmount }}</p>
+            <div class="amount_next">
+                <button v-if="canContinue" class="bottom-right">다음</button>
+            </div>
         </div>
     </section>
-
-    <footer>
-        <div class="copyright">
-            <p>Hosted by Aligo.Space w/ love</p>
-        </div>
-    </footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://serratus.github.io/quaggaJS/examples/js/quagga.min.js"></script>
@@ -80,7 +67,6 @@
         Quagga.onDetected(function (data) {
             console.log(data.codeResult)
         });
-        Quagga.start();
 
     })
 </script>
@@ -94,21 +80,24 @@
             let han = hanA[num.charAt(num.length - (i + 1))];
             if (han !== "") str += han + danA[i];
             if (i === 4) str += "만";
-            if (i === 8) str += "억";
-            if (i === 12) str += "조";
             result = str + result;
         }
-        if (num !== 0) result = result + "원";
         return result;
     }
 
-    function filterAmount(num) {
-        if (num === 0) {
-            return "영 왕운 코인"
+    function filterAmount() {
+        this.canContinue = false;
+        let num = this.amount;
+        if (num == 0 || num === "") {
+            return "금액을 입력하세요"
         }
         if (num > 50000) {
             return "금액이 너무 큽니다"
         }
+        if (num % 100 !== 0) {
+            return "100원 단위로 입력해야 합니다"
+        }
+        this.canContinue = true;
         return viewKorean(num) + " 왕운 코인"
     }
 
@@ -117,9 +106,17 @@
         data: {
             message: "부정 결제 시 탄핵됩니다",
             amount: 0,
-            filterAmount: filterAmount
+            canContinue: false,
+        },
+        computed: {
+            filterAmount: filterAmount,
+            inputClass: function () {
+                return this.canContinue ? "green" : "red"
+            }
         }
-    })
+    });
+
+    app.amount = "";
 </script>
 </body>
 </html>
