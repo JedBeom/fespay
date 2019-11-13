@@ -39,6 +39,15 @@ body {
     padding-bottom: 2.5rem;
 }
 
+.alert {
+    background-color: rgb(255, 59, 59);
+    padding: 10px;
+    font-size: 15px;
+    color: white;
+    font-weight: 700;
+    border-radius: 10px;
+}
+
 .navbar {
     list-style-type: none;
     margin: 0;
@@ -55,7 +64,7 @@ body {
 }
 
 .navbar .logo {
-    font-size: 30px;
+    font-size: 40px;
     color: red;
     font-family: 'yangjin', sans-serif;
 }
@@ -82,7 +91,7 @@ body {
 }
 
 .enter_amount {
-    margin-top: 15vh;
+    margin: 15vh 20px 0 20px;
 }
 
 .enter_amount form {
@@ -93,24 +102,31 @@ body {
 .enter_amount input[type=text] {
     border-radius: 0;
     padding: 10px;
-    margin-top: 18vh;
-    width: 40%;
+    margin-top: 13vh;
+    width: 60%;
     box-sizing: border-box;
     background-color: rgb(255, 251, 239);
-    color: rgb(255, 154, 71);
-    font-size: 30px;
+    font-size: 50px;
     font-weight: 900;
     text-align: center;
 }
 
-.red {
+.red_border {
     border: none;
-    border-bottom: 3px solid rgb(255, 0, 0);
+    border-bottom: 3px solid salmon;
+}
+
+.green_border {
+    border: none;
+    border-bottom: 3px solid seagreen;
+}
+
+.red {
+    color: salmon;
 }
 
 .green {
-    border: none;
-    border-bottom: 3px solid rgb(0, 255, 0);
+    color: seagreen;
 }
 
 .enter_amount h2 {
@@ -125,14 +141,14 @@ body {
 }
 
 button {
-    margin: 30px;
-    font-size: 23px;
+    margin: 40px;
+    font-size: 30px;
     font-weight: 700;
     padding: 7px 10px 7px 10px;
     text-decoration: none;
     text-align: center;
     color: white;
-    background-color: rgba(255, 0, 0, 0.678);
+    background-color: seagreen;
     border: none;
     border-radius: 10px;
     -webkit-appearance: none;
@@ -155,7 +171,6 @@ button {
     margin-top: 10px;
     text-align: center;
     font-size: 20px;
-    color: salmon;
     font-weight: 700;
 }
 
