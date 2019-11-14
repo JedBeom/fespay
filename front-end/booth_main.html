@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -18,42 +18,31 @@
 </nav>
 <div id="app">
     <noscript>
-        <div class="alert">
+        <div class="alert app-margin">
             <p>페스페이는 JavaScript 없이는 작동하지 않습니다.<br>자바스크립트를 허용해 주십시오.</p>
         </div>
     </noscript>
+    <type-amount v-on:set-amount="setAmount" v-if="this.action === 'amount'"></type-amount>
+    <scan-barcode v-if="this.action === 'scan'" v-on:set-code="setCode"></scan-barcode>
+    <record-result v-if="this.action === 'result'" v-bind:record-id="this.recordID" v-on:to="to"></record-result>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="https://serratus.github.io/quaggaJS/examples/js/quagga.min.js"></script>
-<script src="/booth.js"></script>
 <script>
-    Quagga.init({
-        inputStream: {
-            name: "Live",
-            type: "LiveStream",
-            target: document.querySelector('#scan'),
-            constraints: {
-                width: {min: 480},
-                height: {min: 640},
-                aspectRatio: {min: 1, max: 100},
-                facingMode: "environment"
+    let iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (iOS) {
+        let ua = window.navigator.userAgent;
+        let avoidBrowsers = ["FxiOS", "NAVER", "KAKAOTALK"];
+        for (let i = 0; i < avoidBrowsers.length; i++) {
+            if (ua.includes(avoidBrowsers[i])) {
+                alert("현재 접속하신 브라우저는 지원하지 않습니다. Safari로 접속하여 주세요.");
+                break
             }
-        },
-        numOfWorkers: 4,
-        decoder: {
-            readers: ["code_39_reader"]
-        },
-    }, function (err) {
-        if (err) {
-            console.log(err);
-            return
         }
-        console.log("READY TO START");
-        Quagga.onDetected(function (data) {
-            console.log(data.codeResult)
-        });
-
-    })
+    }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+<script src="/quagga.min.js"></script>
+<script src="/booth.js"></script>
 </body>
 </html>

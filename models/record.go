@@ -17,7 +17,7 @@ func IsInvalidAmount(amount int) bool {
 
 func RecordByID(db *pg.DB, id string) (r Record, err error) {
 	r.ID = id
-	err = db.Model(&r).WherePK().Select()
+	err = db.Model(&r).WherePK().Relation("User").Relation("Booth").Select()
 	return
 }
 

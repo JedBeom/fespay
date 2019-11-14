@@ -44,8 +44,8 @@ var (
 	ErrField          = NewApiError(http.StatusUnprocessableEntity, -103, "field error")
 
 	ErrUserNotInBooth = NewApiError(http.StatusForbidden, -200, "user isn't in a booth")
-	ErrFrozenBooth    = NewApiError(http.StatusBadRequest, -201, "booth is frozen")
-	ErrFrozenUser     = NewApiError(http.StatusBadRequest, -202, "booth is frozen")
+	ErrFrozenUser     = NewApiError(http.StatusBadRequest, -201, "user is frozen")
+	ErrFrozenBooth    = NewApiError(http.StatusBadRequest, -202, "booth is frozen")
 	ErrUserMismatch   = NewApiError(http.StatusUnprocessableEntity, -210, "user id is mismatch")
 	ErrBoothMismatch  = NewApiError(http.StatusUnprocessableEntity, -211, "booth id is mismatch")
 

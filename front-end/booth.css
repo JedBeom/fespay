@@ -32,10 +32,13 @@ body {
 }
 
 #app {
-    margin: 20px;
-    margin-top: 60px;
     /* min-height: 90vh; */
     position: relative;
+}
+
+.app-margin {
+    margin: 20px;
+    margin-top: 60px;
     padding-bottom: 2.5rem;
 }
 
@@ -90,7 +93,7 @@ body {
     color: black;
 }
 
-.enter_amount {
+.booth_box {
     margin: 15vh 20px 0 20px;
 }
 
@@ -129,7 +132,7 @@ body {
     color: seagreen;
 }
 
-.enter_amount h2 {
+h2 {
     font-size: 10vw;
     font-weight: 500;
     font-family: 'S-CoreDream-8Heavy', sans-serif;
@@ -217,6 +220,35 @@ tr:nth-child(even) {
     color: grey;
 }
 
-canvas {
-    margin-right: -480px;
+#scan {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: -100;
+}
+
+#scan video {
+    width: 100%;
+    position: fixed;
+}
+
+#scan canvas {
+    display: none;
+}
+
+.scan_h2 {
+    margin: 20px;
+    color: white;
+    text-shadow: 2px 2px 2px black;
+    margin-top: 20vh;
+    position: fixed;
+}
+
+.record-result ul {
+    margin-top: 20px;
+}
+
+.record-result li {
+    list-style-type: none;
 }
