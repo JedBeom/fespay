@@ -63,59 +63,42 @@ Vue.component('type-amount', {
     },
 });
 
+let width = window.screen.availWidth;
+let height = window.screen.availHeight;
+
 Vue.component('scan-barcode', {
     template: `<div>
-    <h2 v-on:click="scanReady()" class="scan_h2">{{ message }}</h2>
-    <div id="scan">
-    </div>
+    <h2 class="scan_h2">{{ message }}</h2>
+    <video id="video"></video>
 </div>`,
     data: function() {
-        return {code: "", message: "눌러서 스캔"}
+        return {code: "", message: "스캔 준비 중", width: width, height: height}
     },
     methods: {
         scanReady: function () {
             if (this.message === "로딩 중...") {
                 return
             }
-            let that = this;
-            Quagga.init({
-                inputStream: {
-                    name: "Live",
-                    type: "LiveStream",
-                    target: document.querySelector('#scan'),
-                    constraints: {
-                        width: {min: 720},
-                        height: {min: 1280},
-                        aspectRatio: {min: 1, max: 100},
-                        facingMode: "environment"
-                    }
-                },
-                numOfWorkers: 4,
-                decoder: {
-                    readers: ["code_39_reader"]
-                },
-            }, function (err) {
-                if (err) {
-                    that.message = "스캔 불가입니다";
-                    alert("카메라를 실행 할 수 없습니다.\n카메라가 연결되어 있거나 권한을 허용했는지 확인해주세요.");
-                    that.next("");
-                    return
-                }
-                that.message = "스캔 중...";
-                Quagga.onDetected(that.next);
-                Quagga.start()
+            this.message = "스캔 중"
+            const codeReader = new ZXing.BrowserBarcodeReader();
+
+            codeReader
+            .decodeFromInputVideoDevice(undefined, 'video')
+            .then(result => {
+                codeReader.reset();
+                this.message = "로딩 중..."
+                this.$emit("set-code", result.text);
             })
+            .catch(err => {
+                this.$emit("set-code", "");
+                alert("카메라를 실행할 수 없습니다. 카메라 권한을 허용했는지 확인해주세요.");
+            });
         },
-        next: _.debounce(
-            function (data) {
-                Quagga.stop();
-                if (data !== "") {
-                    this.code = data.codeResult.code;
-                }
-                this.message = "로딩 중...";
-                this.$emit("set-code", this.code);
-            }, 500
-        )
+    },
+    mounted: function () {
+            this.$nextTick(function () {
+                this.scanReady()
+            })
     }
 });
 
@@ -141,7 +124,7 @@ Vue.component('record-result', {
     props: ['recordId'],
     computed: {
         getRecord: function () {
-            axios.get("/api/v1/records/" + this.recordId, {
+            axios.get("https://fespay.aligo.space/api/v1/records/" + this.recordId, {
                 headers: {
                     "Content-Type": "application/json;charset=UTF-8",
                     "Rabbit-Fur": "db3c6b39-fe75-4485-8dd9-c4ea454091eb"
@@ -163,7 +146,7 @@ Vue.component('record-result', {
             this.$emit("to", "amount")
         },
         cancel: function () {
-            axios.delete("/api/v1/records/" + this.recordId, {
+            axios.delete("https://fespay.aligo.space/api/v1/records/" + this.recordId, {
                 headers: {
                     "Content-Type": "application/json;charset=UTF-8",
                     "Rabbit-Fur": "db3c6b39-fe75-4485-8dd9-c4ea454091eb"
@@ -209,7 +192,7 @@ let app = new Vue({
                 amount: this.amount,
                 cardCode: this.code,
             };
-            axios.post("/api/v1/records", data, {
+            axios.post("https://fespay.aligo.space/api/v1/records", data, {
                 headers: {
                     "Content-Type": "application/json;charset=UTF-8",
                     "Rabbit-Fur": "db3c6b39-fe75-4485-8dd9-c4ea454091eb"

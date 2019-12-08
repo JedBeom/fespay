@@ -27,7 +27,7 @@
 }
 
 body {
-    background-color: rgb(255, 251, 239);
+    background-color: rgb(255, 251, 239, 0);
     color: rgba(0, 0, 0, 0.726);
 }
 
@@ -108,7 +108,7 @@ body {
     margin-top: 13vh;
     width: 60%;
     box-sizing: border-box;
-    background-color: rgb(255, 251, 239);
+    background-color: rgb(255, 251, 239, 0);
     font-size: 50px;
     font-weight: 900;
     text-align: center;
@@ -220,16 +220,12 @@ tr:nth-child(even) {
     color: grey;
 }
 
-#scan {
+#video {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     z-index: -100;
-}
-
-#scan video {
-    width: 100%;
     position: fixed;
 }
 
