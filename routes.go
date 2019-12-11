@@ -12,7 +12,10 @@ func routes(e *echo.Echo) {
 	e.Use(echoMw.RequestID())
 	e.Use(MiddlewareLogger)
 
-	e.Static("/", "front-end")
+	echo.NotFoundHandler = func(c echo.Context) error {
+		return c.File("front/dist/index.html")
+	}
+
 	e.GET("/api/v1/register/available", getAvailable)
 	e.PATCH("/api/v1/register", patchRegister)
 	e.POST("/api/v1/login", postLogin)
