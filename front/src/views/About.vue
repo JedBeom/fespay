@@ -14,6 +14,9 @@ export default {
   },
   methods: {
     onDetect: function (code) {
+      if (code === "") {
+        return
+      }
       let d = {
         type: 2, 
         amount: 1000,

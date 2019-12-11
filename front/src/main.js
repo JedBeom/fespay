@@ -4,6 +4,8 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+require("bulma/css/bulma.min.css")
+
 new Vue({
   router,
   render: h => h(App)

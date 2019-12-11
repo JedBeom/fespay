@@ -1,7 +1,7 @@
 <template>
-  <div class="home">
-    <h1>안녕하십니까</h1>
-    <p>This is home</p>
+  <div class="container">
+    <h1 class="title">안녕하십니까</h1>
+    <p class="subtitle">This is home</p>
   </div>
 </template>
 

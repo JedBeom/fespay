@@ -49,7 +49,6 @@ h2 {
     margin: 20px;
     color: white;
     text-shadow: 2px 2px 2px black;
-    margin-top: 20vh;
     position: fixed;
 }
 
