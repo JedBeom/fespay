@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <h1 class="title">안녕하십니까</h1>
+  <div class="content">
+    <h1 class="title">{{ name }} 님 안녕하세요.</h1>
     <p class="subtitle">This is home</p>
   </div>
 </template>
@@ -11,7 +11,11 @@
 
 export default {
   name: 'home',
+  data: function () {
+    return {name: ""}
+  },
   components: {
+    
   }
 }
 </script>
