@@ -12,9 +12,12 @@ func routes(e *echo.Echo) {
 	e.Use(echoMw.RequestID())
 	e.Use(MiddlewareLogger)
 
-	echo.NotFoundHandler = func(c echo.Context) error {
-		return c.File("front/dist/index.html")
-	}
+	frontPrefix := "front/dist"
+	e.File("/*", frontPrefix+"/index.html")
+	e.File("/favicon.ico", frontPrefix+"/favicon.ico")
+	e.Static("/css", frontPrefix+"/css")
+	e.Static("/img", frontPrefix+"/img")
+	e.Static("/js", frontPrefix+"/js")
 
 	e.GET("/api/v1/register/available", getAvailable)
 	e.PATCH("/api/v1/register", patchRegister)

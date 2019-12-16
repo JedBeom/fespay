@@ -115,22 +115,22 @@ func postRecord(c echo.Context) error {
 		AccessLogID: c.Response().Header().Get(echo.HeaderXRequestID),
 	}
 
+	if p.CardCode == "" { // cardCode required
+		return ErrField.Send(c)
+	}
+
+	tu, err := models.UserByCardCode(db, p.CardCode) // get targetUser
+	if err != nil {
+		return ErrInvalidCardCode.Send(c)
+	}
+	r.UserID = tu.ID
+
 	switch p.Type {
 	case models.RecordCharge: // charging
 		r.Type = models.RecordCharge
 		if u.BoothID != AdminBoothID { // only admin can do it
 			return echo.ErrForbidden
 		}
-
-		if p.CardCode == "" { // cardCode should be told
-			return ErrField.Send(c)
-		}
-
-		tu, err := models.UserByCardCode(db, p.CardCode) // get targetUser
-		if err != nil {
-			return ErrInvalidCardCode.Send(c)
-		}
-		r.UserID = tu.ID
 
 		now := time.Now()
 		r.PaidAt = &now
@@ -140,26 +140,18 @@ func postRecord(c echo.Context) error {
 		}
 	case models.RecordOrder: // order
 		r.Type = models.RecordOrder
-		if p.CardCode != "" { // 선결제 생성인 경우
-			tu, err := models.UserByCardCode(db, p.CardCode) // get targetUser
-			if err != nil || tu.Status == models.StatusSuspended {
-				return ErrInvalidCardCode.Send(c)
-			}
+		if tu.Status == models.StatusSuspended {
+			return ErrInvalidCardCode.Send(c)
+		}
 
-			if tu.Status == models.StatusFrozen { // 결제 불능 상태인 경우
-				return ErrFrozenUser.Send(c)
-			}
+		if tu.Status == models.StatusFrozen { // 결제 불능 상태인 경우
+			return ErrFrozenUser.Send(c)
+		}
 
-			r.UserID = tu.ID
-			now := time.Now()
-			r.PaidAt = &now
-			if err := r.PayAndCreate(db); err != nil {
-				return err2ApiErr(err).Send(c)
-			}
-		} else { // 선 생성 후 결제인 경우
-			if err := r.Create(db); err != nil {
-				return err2ApiErr(err).Send(c)
-			}
+		now := time.Now()
+		r.PaidAt = &now
+		if err := r.PayAndCreate(db); err != nil {
+			return err2ApiErr(err).Send(c)
 		}
 	default: // 뭐야 그거...
 		return ErrUnknownRecordType.Send(c)
