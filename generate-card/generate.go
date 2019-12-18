@@ -6,7 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/JedBeom/fespay/models"
 
@@ -46,58 +48,30 @@ func sToI(a string) int {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	grade := sToI(r.URL.Query().Get("grade"))
-	class := sToI(r.URL.Query().Get("class"))
-
-	if grade < 1 || grade > 3 {
-		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte("Invalid Grade"))
-		return
+	ids := strings.Split(r.URL.Query().Get("ids"), "|")
+	needsSort := r.URL.Query().Get("sort")
+	if needsSort == "true" {
+		sort.Strings(ids)
 	}
-
-	if class < 1 || class > 9 {
+	if len(ids) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte("Invalid Grade"))
-		return
-	}
-
-	numbersStr := r.URL.Query()["numbers"]
-	var numbers []int
-	for _, s := range numbersStr {
-		i := sToI(s)
-		if i == 0 {
-			w.WriteHeader(http.StatusBadRequest)
-			_, _ = w.Write([]byte(s + " is not integer"))
-			return
-		}
-		numbers = append(numbers, i)
-	}
-
-	if len(numbers) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte("No numbers"))
-		return
+		_, _ = w.Write([]byte("no ids"))
 	}
 
 	var us []models.User
-	err := db.Model(&us).Where("grade = ?", grade).Where("class = ?", class).
-		Where("number in (?)", pg.In(numbers)).
-		Order("grade").Order("class").Order("number").Select()
+	for _, id := range ids {
+		u, err := getUser(db, id)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(id + ": " + err.Error()))
+			return
+		}
 
-	if len(us) == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		_, _ = w.Write([]byte("No users"))
-		return
-	}
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(err.Error()))
-		return
+		us = append(us, u)
 	}
 
 	t := template.Must(template.ParseFiles("generate-card/card.html"))
-	err = t.Execute(w, us)
+	err := t.Execute(w, us)
 	if err != nil {
 		log.Println(err)
 	}
@@ -108,7 +82,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 func getUser(db *pg.DB, id string) (models.User, error) {
 	u := models.User{}
 	if len(id) != 4 {
-		return u, errors.New(id + "is not 4 length")
+		return u, errors.New(id + " is not 4 length")
 	}
 
 	grade := int(id[0] - '0')
