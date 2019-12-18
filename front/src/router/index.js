@@ -22,6 +22,26 @@ const routes = [
     path: '/login',
     name: 'login',
     component: () => import('@/views/Login.vue')
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: () => import('@/views/Register.vue')
+  },
+  {
+    path: "/booth/amount",
+    name: "BoothAmount",
+    component: () => import("@/views/BoothAmount.vue")
+  },
+  {
+    path: "/booth/scan/:amount",
+    name: "BoothScan",
+    component: () => import ("@/views/BoothScan.vue")
+  },
+  {
+    path: "/booth/records/:id",
+    name: "BoothRecordDetail",
+    component: () => import ("@/views/BoothRecordDetail.vue")
   }
 ]
 

@@ -1,4 +1,4 @@
-export function numToKor(num) {
+export default function numToKor(num) {
     let hanA = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구", "십"];
     let danA = ["", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천", "", "십", "백", "천"];
     let result = "";

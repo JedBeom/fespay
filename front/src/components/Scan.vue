@@ -1,8 +1,5 @@
 <template>
-    <div>
-        <h2>{{message}}</h2>
-        <video id="video"></video> 
-    </div>
+    <video id="video"></video> 
 </template>
 
 <script>
@@ -10,22 +7,20 @@ import { BrowserBarcodeReader } from "@zxing/library"
 
 export default {
     data: function() {
-        return {code: "", message: "스캔 준비 중", 
-        width: window.screen.availWidth, height: window.screen.availHeight}
+        return {code: "", 
+        width: window.screen.availWidth, height: window.screen.availHeight, codeReader: BrowserBarcodeReader()}
+    },
+    props: {
+        active: Boolean
     },
     methods: {
-        ready: function() {
-            if (this.message === "로딩 중...") {
-                return
-            }
-            this.message = "스캔 중"
-            const codeReader = new BrowserBarcodeReader();
+        ready: function(loader) {
+            this.codeReader = new BrowserBarcodeReader();
 
-            codeReader
+            this.codeReader
             .decodeFromInputVideoDevice(undefined, 'video')
             .then(result => {
-                codeReader.reset();
-                this.message = "로딩 중..."
+                this.codeReader.reset();
                 this.$emit("on-detect", result.text);
             })
             /* eslint-disable no-unused-vars */
@@ -34,28 +29,26 @@ export default {
                 alert("카메라를 실행할 수 없습니다. 카메라 권한을 허용했는지 확인해주세요.");
             });
             /* eslint-enable no-unused-vars */
+            loader.hide()
         }
     },
-    mounted: function () {
+    mounted () {
+        let loader = this.$loading.show()
         this.$nextTick(function () {
-            this.ready();
+            this.ready(loader);
         })
+    },
+    computed: {
+        activeOrNot() {
+            if (!this.active) {
+                this.codeReader.reset()
+            }
+            return this.active
+        }
     }
 }
 </script>
 
 <style scoped>
-h2 {
-    margin: 20px;
-    color: white;
-    text-shadow: 2px 2px 2px black;
-    position: fixed;
-}
 
-video {
-    top: 0;
-    left: 0;
-    z-index: -100;
-    position: fixed;
-}
 </style>
