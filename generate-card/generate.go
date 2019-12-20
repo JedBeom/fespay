@@ -48,19 +48,38 @@ func sToI(a string) int {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
+	userType := sToI(r.URL.Query().Get("type"))
 	ids := strings.Split(r.URL.Query().Get("ids"), "|")
 	needsSort := r.URL.Query().Get("sort")
+
 	if needsSort == "true" {
 		sort.Strings(ids)
 	}
+
 	if len(ids) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte("no ids"))
 	}
 
+	t := template.Must(template.ParseFiles("generate-card/card.html"))
+
+	if userType == 2 {
+		us, err := getTeachers(db)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte("teacher: " + err.Error()))
+			return
+		}
+		err = t.Execute(w, us)
+		if err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
 	var us []models.User
 	for _, id := range ids {
-		u, err := getUser(db, id)
+		u, err := getStudent(db, id)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			_, _ = w.Write([]byte(id + ": " + err.Error()))
@@ -70,7 +89,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 		us = append(us, u)
 	}
 
-	t := template.Must(template.ParseFiles("generate-card/card.html"))
 	err := t.Execute(w, us)
 	if err != nil {
 		log.Println(err)
@@ -79,7 +97,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func getUser(db *pg.DB, id string) (models.User, error) {
+func getStudent(db *pg.DB, id string) (models.User, error) {
 	u := models.User{}
 	if len(id) != 4 {
 		return u, errors.New(id + " is not 4 length")
@@ -105,4 +123,11 @@ func getUser(db *pg.DB, id string) (models.User, error) {
 		Where("class = ?", class).Where("number = ?", number).Select()
 
 	return u, err
+}
+
+func getTeachers(db *pg.DB) ([]models.User, error) {
+	var us []models.User
+
+	err := db.Model(&us).Where("type = 2").Select()
+	return us, err
 }

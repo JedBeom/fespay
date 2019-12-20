@@ -83,7 +83,11 @@
 {{ range . }}
     <div class="card">
         <div class="box front">
+            {{ if ne .Grade 0 }}
             <p>{{.Grade}}학년 {{.Class}}반 {{.Number}}번 {{.Name}}</p>
+            {{ else }}
+            <p>교사 {{.Name}}</p>
+            {{ end }}
             <svg class="barcode" jsbarcode-value="{{.CardCode}}" jsbarcode-format="CODE39" jsbarcode-width="3"
                  jsbarcode-displayValue="false"></svg>
         </div>
