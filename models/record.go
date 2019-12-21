@@ -53,7 +53,11 @@ func (b *Booth) Records(db *pg.DB, all bool) (rs []Record, err error) {
 	if err := q.Select(); err != nil {
 		return rs, err
 	}
-	err = recordsFillUser(db, &rs)
+	if err := recordsFillUser(db, &rs); err != nil {
+		return rs, err
+	}
+
+	err = recordsFillStaff(db, &rs)
 	return
 }
 
@@ -75,6 +79,29 @@ func recordsFillUser(db *pg.DB, rs *[]Record) error {
 		}
 		users[u.ID] = u
 		rsV[i].User = &u
+	}
+	rs = &rsV
+	return nil
+}
+
+func recordsFillStaff(db *pg.DB, rs *[]Record) error {
+	rsV := *rs
+	users := map[string]User{}
+	for i := range rsV {
+		if rsV[i].StaffID == "" {
+			continue
+		}
+
+		if u, ok := users[rsV[i].StaffID]; ok {
+			rsV[i].User = &u
+			continue
+		}
+		u, err := UserByID(db, rsV[i].StaffID, false)
+		if err != nil {
+			return err
+		}
+		users[u.ID] = u
+		rsV[i].Staff = &u
 	}
 	rs = &rsV
 	return nil
