@@ -4,6 +4,7 @@ CREATE TABLE booths
     id          TEXT PRIMARY KEY,
     coin        INTEGER DEFAULT 0,
     name        VARCHAR(10) NOT NULL UNIQUE,
+    type        INTEGER     NOT NULL,
     description VARCHAR(200),
     location    VARCHAR(15),
 
@@ -24,7 +25,6 @@ CREATE TABLE users
     type       INTEGER    NOT NULL,
 
     card_code  CHAR(5) UNIQUE,
-    pay_code   TEXT UNIQUE,
     grade      INTEGER,
     class      INTEGER,
     number     INTEGER,

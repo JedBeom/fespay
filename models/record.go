@@ -61,6 +61,10 @@ func recordsFillUser(db *pg.DB, rs *[]Record) error {
 	rsV := *rs
 	users := map[string]User{}
 	for i := range rsV {
+		if rsV[i].UserID == "" {
+			continue
+		}
+
 		if u, ok := users[rsV[i].UserID]; ok {
 			rsV[i].User = &u
 			continue

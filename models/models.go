@@ -41,6 +41,13 @@ type User struct {
 	UpdatedAt *time.Time `json:"updatedAt,omitempty"`
 }
 
+type BoothType int
+
+const (
+	BoothExperience BoothType = iota + 1
+	BoothFood
+)
+
 type Booth struct {
 	ID          string     `json:"id"`
 	Name        string     `sql:",unique" sql:",notnull" sql:"type:varchar(10)" json:"name"`
