@@ -7,7 +7,7 @@
 
 
         <figure class="image">
-        <img src="@/assets/logo.png" class="logo" draggable="false">
+        <a href="/"><img src="@/assets/logo.png" class="logo" draggable="false"></a>
         </figure>
         <h1 class="title">로그인</h1>
 
@@ -55,6 +55,7 @@
 <script>
 import axios from 'axios'
 const feather = require('feather-icons')
+import api from '@/common/api.service'
 export default {
     mounted() {
         this.$nextTick(() => {
@@ -73,6 +74,7 @@ export default {
             let d = {loginID: id, password: password}
             axios.post("https://fespay.aligo.space/api/v1/login", d).then((response) => {
                 localStorage.setItem("token", response.data.token)
+                api.setHeader()
                 this.$router.push({name: "home"})
             }).catch(() => {
                 this.errMsg = "아이디 또는 암호가 올바르지 않습니다"
@@ -98,7 +100,6 @@ export default {
     .logo {
         margin-bottom: 5vh;
         display: block;
-        margin-left: auto;
         min-width: 30vw;
         max-width: 500px;
         margin-right: auto;

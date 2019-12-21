@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import auth from '@/common/auth.service'
 
 Vue.use(VueRouter)
 
@@ -8,20 +9,13 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Home
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: Home,
+    beforeEnter: auth
   },
   {
     path: '/login',
     name: 'login',
-    component: () => import('@/views/Login.vue')
+    component: () => import('@/views/Login.vue'),
   },
   {
     path: '/register',
@@ -31,17 +25,20 @@ const routes = [
   {
     path: "/booth/amount",
     name: "BoothAmount",
-    component: () => import("@/views/BoothAmount.vue")
+    component: () => import("@/views/BoothAmount.vue"),
+    beforeEnter: auth
   },
   {
     path: "/booth/scan/:amount",
     name: "BoothScan",
-    component: () => import ("@/views/BoothScan.vue")
+    component: () => import ("@/views/BoothScan.vue"),
+    beforeEnter: auth
   },
   {
     path: "/booth/records/:id",
     name: "BoothRecordDetail",
-    component: () => import ("@/views/BoothRecordDetail.vue")
+    component: () => import ("@/views/BoothRecordDetail.vue"),
+    beforeEnter: auth
   }
 ]
 

@@ -1,31 +1,53 @@
 <template>
   <div class="content app">
-    <h1 class="title is-2">{{ myName }} 님 안녕하세요.</h1>
-    <h2 class="title is-3">{{ myCoin }}코인 남았습니다.</h2>
+    <figure class="image">
+      <a href="/"><img src="@/assets/logo.png" class="logo" draggable="false"></a>
+    </figure>
+    <h1 class="title is-2">{{ me.name }} 님 </h1>
+    <h2 class="title is-3">{{ me.coin }}코인 남았습니다.</h2>
     <router-link :to="{name:'BoothAmount'}">결제화면 바로가기</router-link>
+    <list :records="records" v-if="!error"></list>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-// import HelloWorld from '@/components/HelloWorld.vue'
 import api from '@/common/api.service'
+import list from '@/components/RecordList.vue'
 
 export default {
   name: 'home',
+  components: {
+    list
+  },
   beforeCreate() {
-    if (!localStorage.getItem("token")) {
-      this.$router.push({name: "login"})
-    }
     api.get("https://fespay.aligo.space/api/v1/user").then((response) => {
-      this.myName = response.data.name
-      this.myCoin = response.data.coin
+      this.me = response.data
+      api.get(`https://fespay.aligo.space/api/v1/booths/${this.me.boothID}/records`).then((r) => {
+        this.records = r.data
+        for (let i in this.records = r.data) {
+          this.records[i].paidAt = new Date(this.records[i].paidAt);
+          this.records[i].hours = this.records[i].paidAt.getHours();
+          this.records[i].minutes = this.records[i].paidAt.getMinutes();
+          this.records[i].seconds = this.records[i].paidAt.getSeconds();
+          if (this.records[i].hours < 10 ) {
+            this.records[i].hours = "0" + this.records[i].hours
+          }
+          if (this.records[i].minutes < 10 ) {
+            this.records[i].minutes = "0" + this.records[i].minutes
+          }
+          if (this.records[i].seconds < 10 ) {
+            this.records[i].seconds = "0" + this.records[i].seconds
+          }
+        }
+      }).catch((err) => {
+        this.error = err
+      })
     }).catch((err) => {
-      this.myName = err
+      this.error = err
     })
   },
   data: function () {
-    return {myName: "", myCoin: 0}
+    return {me: {}, records: {}, error: ""}
   },
 }
 </script>
@@ -34,6 +56,13 @@ export default {
 .app {
   margin: 8vw;
   padding-bottom: 8vw;
+}
+    
+.logo {
+  margin-bottom: 5vh;
+  margin-left: auto;
+  min-width: 30vw;
+  max-width: 500px;
 }
 
 @media only screen and (min-width: 768px) {

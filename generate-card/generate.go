@@ -77,6 +77,45 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if userType == 4 {
+		us := []models.User{
+			{
+				Name:     "김노관",
+				CardCode: "T0013",
+			},
+			{
+				Name:     "정혜인",
+				CardCode: "T0015",
+			},
+			{
+				Name:     "유재민",
+				CardCode: "T0016",
+			},
+			{
+				Name:     "남지혜",
+				CardCode: "T0018",
+			},
+			{
+				Name:     "이보라",
+				CardCode: "T0022",
+			},
+			{
+				Name:     "Jefferson",
+				CardCode: "T0024",
+			},
+			{
+				Name:     "박현숙",
+				CardCode: "T0026",
+			},
+		}
+
+		err := t.Execute(w, us)
+		if err != nil {
+			log.Println(err)
+		}
+		return
+	}
+
 	var us []models.User
 	for _, id := range ids {
 		u, err := getStudent(db, id)
