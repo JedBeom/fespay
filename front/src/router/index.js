@@ -3,6 +3,14 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import auth from '@/common/auth.service'
 
+function checkAdmin(to, from, next) {
+  if (localStorage.getItem("is_admin") !== "true") {
+    next({name: "Home"})
+    return
+  }
+  next()
+}
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -39,6 +47,24 @@ const routes = [
     name: "BoothRecordDetail",
     component: () => import ("@/views/BoothRecordDetail.vue"),
     beforeEnter: auth
+  },
+  {
+    path: "/admin/scan/:amount",
+    name: "AdminScan",
+    component: () => import ("@/views/AdminScan.vue"),
+    beforeEnter: checkAdmin
+  },
+  {
+    path: "/admin/charge",
+    name: "AdminCharge",
+    component: () => import ("@/views/AdminCharge.vue"),
+    beforeEnter: checkAdmin
+  },
+  {
+    path: "/admin/records/:id",
+    name: "AdminChargeDetail",
+    component: () => import ("@/views/AdminChargeDetail.vue"),
+    beforeEnter: checkAdmin
   }
 ]
 

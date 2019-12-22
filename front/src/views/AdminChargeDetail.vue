@@ -4,25 +4,22 @@
     {{ errMsg }}
 </div>
 <div class="app">
-    <h1 class="title is-2">
-        <span class="icon has-text-success is-large"><i data-feather="check-circle"></i></span> 결제 완료
-    </h1>
+    <h1 class="title is-2">충전 완료</h1>
     <div class="result">
-    <RecordDetail :recordID="recordID" />
+    <RecordDetail :recordID="recordID" displayCoin=true />
     </div>
     <button class="button is-outlined is-danger" :disabled="cancelDisabled" @click="cancel">{{ cancelMsg }}</button>
     <button class="button is-outlined is-success" @click="complete">결제 완료하기</button>
-</div>    
+</div>
 </section>
 </template>
 
 <script>
 import RecordDetail from '@/components/RecordDetail.vue'
 import api from '@/common/api.service'
-const feather = require("feather-icons")
 
 export default {
-    name: "BoothRecordDetail",
+    name: "AdminChargeDetail",
     components: {
         RecordDetail
     },
@@ -31,38 +28,33 @@ export default {
             return this.$route.params.id
         },
         cancelDisabled() {
-            if (this.cancelMsg !== "결제 취소하기") {
+            if (this.cancelMsg !== "충전 취소하기") {
                 return true
             }
 
             return false
         }
     },
-    mounted() {
-        this.$nextTick(() => {
-            feather.replace()
-        })
-    },
     data: function() {
-        return {cancelMsg: "결제 취소하기", errMsg: ""}
+        return {cancelMsg: "충전 취소하기", errMsg: ""}
     },
     methods: {
         cancel() {
             let loader = this.$loading.show()
             api.delete("records", this.recordID).then(() => {
-                this.cancelMsg = "결제 취소됨"
+                this.cancelMsg = "충전 취소됨"
             }).catch((err) => {
                 if (err.response.data.errorCode == -310) {
-                    this.errMsg = "이미 취소된 결제입니다"
-                    this.cancelMsg = "결제 취소됨"
+                    this.errMsg = "이미 취소된 충전입니다"
+                    this.cancelMsg = "충전 취소됨"
                     return
                 }
-                this.errMsg = "결제를 취소하는 도중 문제가 발생했습니다."
+                this.errMsg = "충전 취소하는 도중 문제가 발생했습니다."
                 this.cancelMsg = "문제 발생"
             }).finally(() => loader.hide())
         },
         complete() {
-            this.$router.push({name: "BoothAmount"})
+            this.$router.push({name: "AdminCharge"})
         }
     }
 }

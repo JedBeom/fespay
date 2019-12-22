@@ -57,7 +57,7 @@
         <div class="field">
             <div class="control">
                 <p class="control has-icons-left">
-                    <input type="text" class="input" placeholder="학생 번호를 입력하세요 ex) 23 (교사인 경우 입력x)" v-model="number" pattern="\d*" inputmode="numberic" required>
+                    <input type="text" class="input" placeholder="학생 번호를 입력하세요 ex) 23 (교사인 경우 입력x)" v-model="number" pattern="\d*" inputmode="numberic">
                     <span class="icon is-small is-left">
                         <i data-feather="hash"></i>
                     </span>

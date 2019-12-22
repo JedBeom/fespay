@@ -13,18 +13,19 @@
         <div class="field">
             <div class="control">
                 <p class="control has-icons-left">
-                <input type="text" class="input" placeholder="아이디를 입력하세요" v-model="id">
+                <input type="text" class="input" placeholder="아이디" v-model="id">
                 <span class="icon is-small is-left">
                     <i data-feather="user"></i>
                 </span>
                 </p>
+                <p class="help">부스 아이디만 알고 있는 경우 '계정이 없습니다'를 눌러주세요</p>
             </div>
         </div>
 
         <div class="field">
             <div class="control">
                 <p class="control has-icons-left">
-                <input type="password" class="input" placeholder="암호를 입력하세요" v-model="password">
+                <input type="password" class="input" placeholder="암호" v-model="password">
                 <span class="icon is-small is-left">
                     <i data-feather="key"></i>
                 </span>
@@ -46,7 +47,15 @@
             </div>
             </footer>
             </form>
-    </div>
+            <article class="message is-info">
+                <div class="message-header">
+                <p>계정을 분실했나요?</p>
+                </div>
+                <div class="message-body">
+                1층 보건실의 페스페이 부스로 문의해주시기 바랍니다.  
+                </div>
+            </article>
+        </div>
 </section>
 </template>
 
@@ -142,5 +151,9 @@ export default {
 
     footer {
         position: relative;
+    }
+
+    article {
+        margin-top: 4vw;
     }
 </style>

@@ -1,9 +1,11 @@
 <template>
 <div>
 <div v-if="user.name">
+<p>유형: {{type}}</p>
 <p>고객: {{user.name}} 님</p>
 <p>금액: {{amount}}코인</p>
 <p>결제 일시: {{hours}}시 {{minutes}}분 {{seconds}}초</p>
+<p v-if="type === 1">잔액: {{user.coin}}</p>
 </div>
 <div v-else>
 <h1 class="title">{{errMsg}}</h1>
@@ -17,10 +19,11 @@ import api from '@/common/api.service'
 export default {
     name: "RecordDetail",
     props: {
-        recordID: String
+        recordID: String,
+        displayCoin: Boolean
     },
     data: function(){
-        return {errMsg: "", amount: "", user: {name: ""}, hours: 0, minutes: 0, seconds: 0}
+        return {errMsg: "", amount: "", user: {name: "", coin: 0}, hours: 0, minutes: 0, seconds: 0, type: ""}
     },
     created() {
         this.getRecord()
@@ -31,6 +34,12 @@ export default {
             api.get("records", this.recordID).then((r) => {
                 this.amount = r.data.amount
                 this.user = r.data.user
+                if (r.data.type === 1) {
+                    this.type = "충전"
+                } else {
+                    this.type = "결제"
+                }
+
                 this.paidAt = new Date(r.data.paidAt);
                 this.hours = this.paidAt.getHours();
                 this.minutes = this.paidAt.getMinutes();

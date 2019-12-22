@@ -1,23 +1,16 @@
 <template>
-<section>
-<div class="notification is-danger navbar is-fixed-bottom" v-show="errMsg">
-    {{ errMsg }}
-</div>
-<div class="app">
-    <h2 class="title is-2">
-        <span class="icon is-large"><i data-feather="dollar-sign"></i></span> 결제할 금액
-        </h2>
-    <form autocomplete="off" @submit.prevent="onSubmit(amount)" class="field">
-        <label for="">
-            <input class="input" type="text" placeholder="00000" v-model="amount"
-            pattern="\d*" inputmode="numberic" maxlength="5">
-        </label>
-        <p>{{hangul}}</p>
-    </form>
-    <button class="button is-outlined" @click="back">돌아가기</button>
-    <button class="button is-outlined is-success" @click="onSubmit(amount)">다음으로</button>
-</div>
-</section>
+    <div class="app">
+        <h2 class="title is-2">충전할 금액 입력</h2>
+        <form autocomplete="off" @submit.prevent="onSubmit(amount)" class="field">
+            <label for="">
+                <input class="input" type="text" placeholder="00000" v-model="amount"
+                pattern="\d*" inputmode="numberic" maxlength="5">
+            </label>
+            <p>{{hangul}}</p>
+        </form>
+        <button class="button is-outlined" @click="back">돌아가기</button>
+        <button class="button is-outlined is-success" @click="onSubmit(amount)">다음으로</button>
+    </div>
 </template>
 
 <script>
@@ -26,7 +19,7 @@ import isAmountValid from '@/common/filterAmount'
 const feather = require("feather-icons")
 
 export default {
-    name: "BoothAmount",
+    name: "AdminCharge",
     data: function() {
         return {amount: "", errMsg: ""}
     },
@@ -56,7 +49,7 @@ export default {
                 return
             }
 
-            this.$router.push({name: "BoothScan", params: {amount: amount}})
+            this.$router.push({name: "AdminScan", params: {amount: amount}})
         },
         back() {
             this.$router.push({name:"home"})
