@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/JedBeom/fespay/models"
 	"github.com/labstack/echo"
@@ -14,6 +15,9 @@ func getAvailable(c echo.Context) error {
 	}{}
 
 	res.CardCode = c.QueryParam("code")
+	if strings.HasSuffix(res.CardCode, "/") && len(res.CardCode) == 6 {
+		res.CardCode = res.CardCode[:4]
+	}
 
 	var err error
 	res.IsAvailable, err = models.CanCardRegistered(db, res.CardCode)
