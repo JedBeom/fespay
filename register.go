@@ -16,7 +16,7 @@ func getAvailable(c echo.Context) error {
 
 	res.CardCode = c.QueryParam("code")
 	if strings.HasSuffix(res.CardCode, "/") && len(res.CardCode) == 6 {
-		res.CardCode = res.CardCode[:4]
+		res.CardCode = res.CardCode[:5]
 	}
 
 	var err error
