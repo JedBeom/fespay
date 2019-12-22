@@ -137,6 +137,6 @@ func (u *User) Create(db *pg.DB) error {
 
 func CopyUsersCSV(db *pg.DB, file io.Reader) (err error) {
 	_, err = db.CopyFrom(file,
-		`COPY users(id, grade, class, number, name, card_code, type) FROM STDIN DELIMITER ',' CSV HEADER`)
+		`COPY users(id, grade, class, number, name, card_code, type, coin, booth_id) FROM STDIN DELIMITER ',' CSV HEADER`)
 	return
 }
