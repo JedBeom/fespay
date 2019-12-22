@@ -184,7 +184,7 @@ export default {
             }
 
             let d = {loginID: id, password: password, name: name, number: number, cardCode: this.cardCode, boothID: this.boothID}
-            api.patch("register", d).then(() => {
+            api.patch("register", "", d).then(() => {
                 window.location.href = "/"
             }).catch(() => {
                 this.errMsg = "개인 정보가 일치하지 않거나 아이디가 고유하지 않습니다"
@@ -210,7 +210,7 @@ export default {
 
     .app {
         margin: 8vw;
-        padding-bottom: 8vw;
+        padding-bottom: 13vw;
         position: absolute;
     }
     
