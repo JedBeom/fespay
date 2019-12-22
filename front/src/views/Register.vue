@@ -1,7 +1,7 @@
 <template>
 <section>
-    <div class="notification is-danger" v-show="errMsg">
-        {{ errMsg }}
+    <div class="notification is-danger navbar is-fixed-bottom" v-show="errMsg">
+        {{errMsg}}
     </div>
     <div class="app container">
         <figure class="image">
@@ -9,13 +9,24 @@
         </figure>
 
         <h1 class="title is-3">회원가입</h1>
-        <div v-show="!cardCode">
+        <div v-if="!cardCode">
             <h2 class="title is-4">본인 인증</h2>
-            <p class="">학생증의 바코드를 인식해 주세요</p>
-            <Scan @on-detect="onDetect" />
-            <div class="register">
-                <router-link to="/login">계정이 있습니다</router-link>
-            </div>
+            <h3 class="title is-5">학생증의 바코드를 인식해 주세요</h3>
+            <Scan @on-detect="onDetect" :active="scanActive"/>
+            <h3 class="title is-5">또는 부스 아이디를 입력해 주세요</h3>
+            <form class="forms" @submit.prevent="boothIDMode">
+                <div class="forms">
+                    <div class="control has-icons-left">
+                        <input type="text" class="input" placeholder="부스 아이디를 입력하세요" v-model="boothID" required>
+                        <span class="icon is-small is-left">
+                            <i data-feather="bold"></i>
+                        </span>
+                    </div>
+                    <div class="login-button">
+                        <button class="button">다음으로</button>
+                    </div>
+                </div>
+            </form>
         </div>
 
 
@@ -31,6 +42,15 @@
                         <i data-feather="at-sign"></i>
                     </span>
                 </p>
+            </div>
+        </div>
+
+        <div class="field" v-show="boothID">
+            <div class="control has-icons-left">
+                <input type="text" class="input" placeholder="부스 아이디를 입력하세요" v-model="boothID" required readonly>
+                <span class="icon is-small is-left">
+                    <i data-feather="bold"></i>
+                </span>
             </div>
         </div>
 
@@ -92,12 +112,15 @@
             </footer>
             </form>
         </div>
+            <div class="register">
+                <router-link to="/login">계정이 있습니다</router-link>
+            </div>
     </div>
 </section>
 </template>
 
 <script>
-import axios from 'axios'
+import api from '@/common/api.service'
 import Scan from '@/components/Scan.vue'
 const feather = require('feather-icons')
 export default {
@@ -111,7 +134,9 @@ export default {
     },
     data: function () {
         return {
-            cardCode: "", name: "", number: "", id: "", password: "", passwordRetry: "", isLoading: "", errMsg: ""
+            cardCode: "", boothID: "", name: "", number: "", 
+            id: "", password: "", passwordRetry: "", isLoading: "", errMsg: "",
+            scanActive: true
         }
     },
     computed: {
@@ -132,6 +157,9 @@ export default {
         }
     },
     methods: {
+        boothIDMode() {
+            this.cardCode = "boothIDMode"
+        },
         onDetect: function(code) {
             this.checkAvailable(code).then((isAvailable) => {
                 if (isAvailable) {
@@ -150,10 +178,14 @@ export default {
                 number = parseInt(number)
             }
 
-            let d = {loginID: id, password: password, name: name, number: number, cardCode: this.cardCode}
-            alert(id, password, name, number, this.cardCode)
-            axios.patch("https://fespay.aligo.space/api/v1/register", d).then(() => {
-                this.$router.push({name: "login"})
+            if (this.isPasswordValid !== "") {
+                this.errMsg = "암호 규칙을 맞춰 주십시오"
+                return
+            }
+
+            let d = {loginID: id, password: password, name: name, number: number, cardCode: this.cardCode, boothID: this.boothID}
+            api.patch("register", d).then(() => {
+                window.location.href = "/"
             }).catch(() => {
                 this.errMsg = "개인 정보가 일치하지 않거나 아이디가 고유하지 않습니다"
             }).finally(() => {
@@ -161,7 +193,7 @@ export default {
             })
         },
         async checkAvailable(code) {
-            return await axios.get(`https://fespay.aligo.space/api/v1/register/available?code=${code}`).then((response) => {
+            return await api.get(`register/available?code=${code}`).then((response) => {
                 return response.data.isAvailable
             }).catch(() => {
                 return false
@@ -224,12 +256,18 @@ export default {
     }
 
     .notification {
-        position: absolute;
-        border-radius: 0;
+        margin-bottom: 0;
         width: 100%;
+        border-radius: 0;
     }
 
     footer {
         position: relative;
     }
+</style>
+
+<style>
+#video {
+    margin-bottom: 5vw;
+}
 </style>

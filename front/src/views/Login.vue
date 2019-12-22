@@ -1,11 +1,9 @@
 <template>
 <section>
-    <div class="notification is-danger" v-show="errMsg">
-        {{ errMsg }}
+    <div class="notification is-danger navbar is-fixed-bottom" v-show="errMsg">
+        {{errMsg}}
     </div>
     <div class="app container">
-
-
         <figure class="image">
         <a href="/"><img src="@/assets/logo.png" class="logo" draggable="false"></a>
         </figure>
@@ -53,7 +51,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 const feather = require('feather-icons')
 import api from '@/common/api.service'
 export default {
@@ -72,7 +69,7 @@ export default {
             this.isLoading = "is-loading"
             this.errMsg = ""
             let d = {loginID: id, password: password}
-            axios.post("https://fespay.aligo.space/api/v1/login", d).then((response) => {
+            api.post("login", d).then((response) => {
                 localStorage.setItem("token", response.data.token)
                 api.setHeader()
                 this.$router.push({name: "home"})
@@ -138,9 +135,9 @@ export default {
     }
 
     .notification {
-        position: absolute;
-        border-radius: 0;
+        margin-bottom: 0;
         width: 100%;
+        border-radius: 0;
     }
 
     footer {

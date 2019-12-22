@@ -3,7 +3,6 @@
 <div v-if="user.name">
 <p>고객: {{user.name}} 님</p>
 <p>금액: {{amount}}코인</p>
-<p>잔액: {{user.coin}}코인</p>
 <p>결제 일시: {{hours}}시 {{minutes}}분 {{seconds}}초</p>
 </div>
 <div v-else>

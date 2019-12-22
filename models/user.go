@@ -46,6 +46,11 @@ func UserByLoginID(db *pg.DB, loginID string) (u User, err error) {
 	return
 }
 
+func UserByNameBoothID(db *pg.DB, name, boothID string) (u User, err error) {
+	err = db.Model(&u).Where("name = ?", name).Where("booth_id = ?", boothID).Select()
+	return
+}
+
 func CanCardRegistered(db *pg.DB, cardCode string) (bool, error) {
 	u := User{}
 	err := db.Model(&u).Where("card_code = ?", cardCode).Select()

@@ -6,6 +6,7 @@
     <h1 class="title is-2">{{ me.name }} 님 </h1>
     <h2 class="title is-3">{{ me.coin }}코인 남았습니다.</h2>
     <router-link :to="{name:'BoothAmount'}">결제화면 바로가기</router-link>
+    <button @click="logout" class="button">로그아웃</button>
     <list :records="records" v-if="!error"></list>
   </div>
 </template>
@@ -20,10 +21,10 @@ export default {
     list
   },
   beforeCreate() {
-    api.get("https://fespay.aligo.space/api/v1/user").then((response) => {
+    api.get("user").then((response) => {
       this.me = response.data
-      api.get(`https://fespay.aligo.space/api/v1/booths/${this.me.boothID}/records`).then((r) => {
-        this.records = r.data
+      api.get(`booths/${this.me.boothID}/records`).then((r) => {
+        this.records = r.data.reverse()
         for (let i in this.records = r.data) {
           this.records[i].paidAt = new Date(this.records[i].paidAt);
           this.records[i].hours = this.records[i].paidAt.getHours();
@@ -49,6 +50,14 @@ export default {
   data: function () {
     return {me: {}, records: {}, error: ""}
   },
+  methods: {
+    logout() {
+      api.get(`logout`).then(() => {
+        localStorage.setItem("token", "")
+        window.location.href = "/login"
+      })
+    },
+  }
 }
 </script>
 

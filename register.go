@@ -33,6 +33,7 @@ func patchRegister(c echo.Context) error {
 	p := struct {
 		LoginID  string `json:"loginID"`
 		Password string `json:"password"`
+		BoothID  string `json:"boothID"`
 		CardCode string `json:"cardCode"`
 
 		Number int    `json:"number"`
@@ -40,8 +41,29 @@ func patchRegister(c echo.Context) error {
 	}{}
 
 	if err := c.Bind(&p); err != nil ||
-		p.LoginID == "" || p.Password == "" || p.CardCode == "" || p.Name == "" {
+		p.LoginID == "" || p.Password == "" || p.Name == "" {
 		return echo.ErrBadRequest
+	}
+
+	if p.BoothID != "" {
+		u, err := models.UserByNameBoothID(db, p.Name, p.BoothID)
+		if err != nil {
+			return echo.ErrBadRequest
+		}
+
+		if u.LoginID != "" {
+			return echo.ErrBadRequest
+		}
+
+		u.LoginID = p.LoginID
+		u.Password = p.Password
+		if err := u.Register(db); err != nil {
+			return err2ApiErr(err).Send(c)
+		}
+
+		return c.JSONPretty(http.StatusOK, Map{
+			"message": "register successful",
+		}, JSONIndent)
 	}
 
 	isAvailable, err := models.CanCardRegistered(db, p.CardCode)
