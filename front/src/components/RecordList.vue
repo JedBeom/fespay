@@ -6,7 +6,8 @@
                     <td>ID</td>
                     <td>고객</td>
                     <td>금액</td>
-                    <td>일시</td>
+                    <td>결제 일시</td>
+                    <td>취소 일시</td>
                 </tr>
             </thead>
             <tbody>
@@ -15,6 +16,12 @@
                     <td>{{r.user.name}}</td>
                     <td>{{r.amount}}</td>
                     <td>{{r.hours}}:{{r.minutes}}:{{r.seconds}}</td>
+                    <template v-if="r.canceledAt">
+                    <td>{{r.canceledAt.hours}}:{{r.canceledAt.minutes}}:{{r.canceledAt.seconds}}</td>
+                    </template>
+                    <template v-else>
+                    <td>-</td>
+                    </template>
                 </tr>
             </tbody>
         </table>

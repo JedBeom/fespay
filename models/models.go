@@ -50,7 +50,7 @@ const (
 
 type Booth struct {
 	ID          string     `json:"id"`
-	Name        string     `sql:",unique" sql:",notnull" sql:"type:varchar(10)" json:"name"`
+	Name        string     `sql:",unique" sql:",notnull" json:"name"`
 	Description string     `sql:"type:varchar(200)" json:"description"`
 	Location    string     `json:"location" json:"location"`
 	Coin        int        `sql:"default:0" json:"coin"`

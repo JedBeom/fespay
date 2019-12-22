@@ -3,8 +3,8 @@ CREATE TABLE booths
 (
     id          TEXT PRIMARY KEY,
     coin        INTEGER DEFAULT 0,
-    name        VARCHAR(10) NOT NULL UNIQUE,
-    type        INTEGER     NOT NULL,
+    name        TEXT    NOT NULL UNIQUE,
+    type        INTEGER NOT NULL,
     description VARCHAR(200),
     location    VARCHAR(15),
 
