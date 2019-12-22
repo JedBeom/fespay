@@ -183,7 +183,13 @@ export default {
                 return
             }
 
-            let d = {loginID: id, password: password, name: name, number: number, cardCode: this.cardCode, boothID: this.boothID}
+            let d = {loginID: id, password: password, name: name, number: number}
+            if (this.cardCode === "boothIDMode") {
+                d.boothID = this.boothID
+            } else {
+                d.cardCode = this.cardCode
+            }
+
             api.patch("register", "", d).then(() => {
                 window.location.href = "/"
             }).catch(() => {
