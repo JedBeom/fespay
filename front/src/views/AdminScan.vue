@@ -9,7 +9,7 @@
         </h2>
     <form autocomplete="off" @submit.prevent="onSubmit(code)" class="field">
         <label for="">
-            <input class="input" type="text" placeholder="SXXXX" v-model="code"
+            <input class="input" type="text" placeholder="SXXXX" v-model="code" autofocus
             maxlength="5">
         </label>
     </form>
