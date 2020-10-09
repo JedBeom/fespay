@@ -1,9 +1,16 @@
+import sys
 import csv
 import io  # for newline option
 import uuid
 
+try:
+    filename = sys.argv[1]
+except:
+    print("usage: py parse_codes.py /path/to/file.txt")
+    sys.exit(0)
+
 d = dict()  # new dictionary
-f = open("input.txt", mode="rt", encoding='UTF8')  # load input.txt
+f = open(filename, mode="rt", encoding='UTF8')  # load input.txt
 for line in f:
     if line.isspace():
         continue  # continue if there are only whitespaces

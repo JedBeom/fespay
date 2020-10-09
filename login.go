@@ -3,43 +3,43 @@ package main
 import (
 	"net/http"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/JedBeom/fespay/models"
 	"github.com/labstack/echo"
 )
 
 func postLogin(c echo.Context) error {
-	payload := struct {
-		ID  string `json:"id" query:"id"`
-		Pin string `json:"pin" query:"pin"`
+	p := struct {
+		LoginID  string `json:"loginID"`
+		Password string `json:"password"`
 	}{}
-	if err := c.Bind(&payload); err != nil {
+	if err := c.Bind(&p); err != nil {
 		return echo.ErrBadRequest
 	}
 
-	seller, err := models.UserByLoginIDWithBooth(db, payload.ID)
+	u, err := models.UserByLoginID(db, p.LoginID)
 	if err != nil {
-		return echo.ErrInternalServerError
+		return ErrLoginFailed.Send(c)
 	}
 
-	if seller.Pin == payload.Pin {
-		sess, err := seller.NewSession(db)
-		if err != nil {
-			return echo.ErrInternalServerError
+	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(p.Password)); err == nil {
+		sess, err := u.NewSession(db, c.Request().UserAgent())
+		if err == nil {
+			return c.JSONPretty(200, Map{
+				"token": sess.ID,
+			}, JSONIndent)
 		}
-
-		return c.JSONPretty(200, KeyValue{
-			"uuid": sess.ID,
-		}, JSONIndent)
 	}
 
-	return ErrLoginFailed
+	return ErrLoginFailed.Send(c)
 
 }
 
 func getLogout(c echo.Context) error {
 	sessID, ok := c.Get("sess_id").(string)
 	if !ok {
-		return echo.ErrInternalServerError
+		return ErrInterface.Send(c)
 	}
 
 	sess := models.Session{
@@ -50,8 +50,8 @@ func getLogout(c echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
-	return c.JSONPretty(http.StatusOK, KeyValue{
-		"message": "logout success",
+	return c.JSONPretty(http.StatusOK, Map{
+		"message": "log out success",
 	}, JSONIndent)
 
 }

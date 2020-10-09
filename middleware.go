@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/JedBeom/fespay/models"
 	"github.com/labstack/echo"
 )
@@ -13,15 +11,21 @@ func MiddlewareTokenCheck(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		key := c.Request().Header.Get(KeyHeaderKey)
 		if key == "" {
-			return echo.NewHTTPError(http.StatusBadRequest)
+			return echo.ErrUnauthorized
 		}
-		sess, seller, err := models.SessionAndUserByID(db, key)
-		if err != nil || seller.ID == 0 {
-			return echo.NewHTTPError(http.StatusUnauthorized, "bad key")
+		s, u, err := models.SessionAndUserByID(db, key)
+		if err != nil || u.ID == "" || u.Status == models.StatusSuspended {
+			return ErrInvalidKey.Send(c)
 		}
 
-		c.Set("sess_id", sess.ID)
-		c.Set("seller", seller)
+		// 아예 부스 없는 척 해버리기~
+		if u.Booth != nil && u.Booth.Status == models.StatusSuspended {
+			u.BoothID = ""
+			u.Booth = nil
+		}
+
+		c.Set("sess_id", s.ID)
+		c.Set("user", u)
 
 		return next(c)
 	}
@@ -29,22 +33,23 @@ func MiddlewareTokenCheck(next echo.HandlerFunc) echo.HandlerFunc {
 
 func MiddlewareLogger(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		sess, ok := c.Get("sess_id").(string)
-		if !ok {
-			return echo.ErrInternalServerError
-		}
 
 		access := models.AccessLog{
-			ID:        c.Response().Header().Get(echo.HeaderXRequestID),
-			Path:      c.Path(),
-			SessionID: sess,
-			IP:        c.RealIP(),
+			ID:     c.Response().Header().Get(echo.HeaderXRequestID),
+			Method: c.Request().Method,
+			Path:   c.Path(),
+			IP:     c.RealIP(),
+		}
+		err := next(c)
+		sID, ok := c.Get("sess_id").(string)
+		if ok {
+			access.SessionID = sID
 		}
 
 		if err := access.Create(db); err != nil {
-			return echo.ErrInternalServerError
+			c.Logger().Error("Access Logging:", err)
 		}
+		return err
 
-		return next(c)
 	}
 }

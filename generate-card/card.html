@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cards</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/moonspam/NanumSquare/master/nanumsquare.css">
+</head>
+<style>
+    @font-face {
+        font-family: 'yangjin';
+        src: url('https://cdn.jsdelivr.net/gh/supernovice-lab/font@0.9/yangjin.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    * {
+        font-family: 'NanumSquare', sans-serif;
+        margin: 0;
+    }
+
+    .box {
+        page-break-before: always;
+        page-break-inside: avoid;
+        float: left;
+        font-size: 20px;
+        /*display: inline-block;*/
+        border: 2px solid black;
+        margin: 0.64cm 1.1cm;
+        width: 8cm;
+        height: 5cm;
+        text-align: center;
+    }
+
+    .front {
+        margin-right: 0
+    }
+
+    .back {
+        margin-left: 0
+    }
+
+    svg {
+        width: 5cm;
+        height: auto;
+    }
+
+    p {
+        margin: 1.2cm 0 0.25cm 0;
+    }
+
+    ul {
+        padding-left: 0;
+        margin-top: 0.3cm;
+    }
+
+    li {
+        margin: 0.15cm;
+        font-size: 12px;
+        list-style: none;
+        padding-left: 0;
+    }
+
+    h1 {
+        font-size: 20px;
+        font-weight: 500;
+        margin-top: 0.8cm;
+        page-break-after: avoid;
+    }
+
+    img {
+        width: 2cm;
+        height: auto;
+        float: right;
+        margin: 1cm 0.4cm 1cm 1cm;
+    }
+
+    .card {
+        display: block;
+        page-break-before: always;
+    }
+</style>
+<body>
+{{ range . }}
+    <div class="card">
+        <div class="box front">
+            {{ if ne .Grade 0 }}
+            <p>{{.Grade}}학년 {{.Class}}반 {{.Number}}번 {{.Name}}</p>
+            {{ else }}
+            <p>교사 {{.Name}}</p>
+            {{ end }}
+            <svg class="barcode" jsbarcode-value="{{.CardCode}}" jsbarcode-format="CODE39" jsbarcode-width="3"
+                 jsbarcode-displayValue="false"></svg>
+        </div>
+        <div class="box back">
+            <h1>유의사항</h1>
+            <ul>
+                <li>본 카드는 학생증으로 사용할 수 없습니다</li>
+                <li>분실 & 습득하면 FESPAY 부스에 문의해주세요</li>
+                <li>본 카드는 학생증으로 사용할 수 없습니다</li>
+            </ul>
+            <img src="/static/logo2-cropped.png" alt="">
+        </div>
+    </div>
+{{ end }}
+<script src="https://cdn.jsdelivr.net/jsbarcode/3.6.0/barcodes/JsBarcode.code39.min.js"></script>
+<script>
+    JsBarcode(".barcode").init()
+</script>
+</body>
+</html>

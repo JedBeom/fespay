@@ -1,26 +1,16 @@
-DROP TABLE IF EXISTS wallets;
-CREATE TABLE wallets
-(
-    id         TEXT PRIMARY KEY,
-    owner_type INTEGER NOT NULL,
-    owner_id   TEXT    NOT NULL UNIQUE,
-    coin       INTEGER DEFAULT 0,
-    updated_at TIMESTAMPTZ
-);
-
-
 DROP TABLE IF EXISTS booths;
 CREATE TABLE booths
 (
     id          TEXT PRIMARY KEY,
-    wallet_id   TEXT        NOT NULL,
-    name        VARCHAR(15) NOT NULL UNIQUE,
+    coin        INTEGER DEFAULT 0,
+    name        TEXT    NOT NULL UNIQUE,
+    type        INTEGER NOT NULL,
     description VARCHAR(200),
+    location    VARCHAR(15),
 
     status      INTEGER DEFAULT 1,
-    updated_at  TIMESTAMPTZ,
+    updated_at  TIMESTAMPTZ
 
-    FOREIGN KEY (wallet_id) REFERENCES wallets (id)
 );
 
 DROP TABLE IF EXISTS users;
@@ -28,8 +18,9 @@ CREATE TABLE users
 (
     id         TEXT PRIMARY KEY,
 
-    wallet_id  TEXT,
+    coin       INTEGER DEFAULT 0,
     booth_id   TEXT,
+    login_id   TEXT,
     password   TEXT,
     type       INTEGER    NOT NULL,
 
@@ -43,8 +34,7 @@ CREATE TABLE users
     status     INTEGER DEFAULT 1,
     updated_at TIMESTAMPTZ,
 
-    FOREIGN KEY (booth_id) REFERENCES booths (id),
-    FOREIGN KEY (wallet_id) REFERENCES wallets (id)
+    FOREIGN KEY (booth_id) REFERENCES booths (id)
 );
 
 DROP TABLE IF EXISTS sessions;
@@ -64,9 +54,9 @@ DROP TABLE IF EXISTS access_logs;
 CREATE TABLE access_logs
 (
     id         TEXT PRIMARY KEY,
-    session_id TEXT NOT NULL,
+    session_id TEXT,
     ip         TEXT NOT NULL,
-    action     TEXT NOT NULL,
+    method     TEXT NOT NULL,
     path       TEXT NOT NULL,
 
     created_at TIMESTAMPTZ DEFAULT current_timestamp,
@@ -74,24 +64,25 @@ CREATE TABLE access_logs
     FOREIGN KEY (session_id) REFERENCES sessions (id) ON DELETE RESTRICT
 );
 
-DROP TABLE IF EXISTS orders CASCADE;
-CREATE TABLE orders
+DROP TABLE IF EXISTS records CASCADE;
+CREATE TABLE records
 (
-    id              TEXT PRIMARY KEY,
+    id            TEXT PRIMARY KEY,
 
-    staff_id        TEXT    NOT NULL,
-    from_id         TEXT    NOT NULL,
-    to_id           TEXT,
-    amount          INTEGER NOT NULL,
-    refund_order_id TEXT,
+    staff_id      TEXT    NOT NULL,
+    booth_id      TEXT    NOT NULL,
+    user_id       TEXT,
+    amount        INTEGER NOT NULL,
 
-    access_log_id   TEXT    NOT NULL,
-    created_at      TIMESTAMPTZ DEFAULT current_timestamp,
-    closed_at       TIMESTAMPTZ,
+    type          INTEGER NOT NULL,
+
+    access_log_id TEXT,
+    created_at    TIMESTAMPTZ DEFAULT current_timestamp,
+    paid_at       TIMESTAMPTZ,
+    canceled_at   TIMESTAMPTZ,
 
     FOREIGN KEY (staff_id) REFERENCES users (id) ON DELETE RESTRICT,
-    FOREIGN KEY (from_id) REFERENCES wallets (id) ON DELETE RESTRICT,
-    FOREIGN KEY (to_id) REFERENCES wallets (id) ON DELETE RESTRICT,
-    FOREIGN KEY (refund_order_id) REFERENCES orders (id) ON DELETE CASCADE,
-    FOREIGN KEY (access_log_id) REFERENCES access_logs (id) ON DELETE RESTRICT
+    FOREIGN KEY (booth_id) REFERENCES booths (id) ON DELETE RESTRICT,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT
+    -- FOREIGN KEY (access_log_id) REFERENCES access_logs (id) ON DELETE RESTRICT
 );
