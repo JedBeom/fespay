@@ -13,6 +13,6 @@ require (
 	github.com/onsi/ginkgo v1.10.3 // indirect
 	github.com/onsi/gomega v1.7.1 // indirect
 	github.com/teris-io/shortid v0.0.0-20171029131806-771a37caa5cf
-	golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
-	mellium.im/sasl v0.2.1 // indirect
+	golang.org/x/crypto v0.0.0-20190320223903-b7391e95e576
+	mellium.im/sasl v0.3.1 // indirect
 )
