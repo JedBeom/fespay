@@ -3,7 +3,7 @@
 <div align="center">
   <img src="./generate-card/logo2-cropped.png" alt="FESPAY Logo" width="600"/>
   
-  <strong>Digital Payment System for the 2019 festival of [Suncheon Wangun Middle School](https://gwangcheol.hs.jne.kr/).</strong>
+  <strong>Digital Payment System for the 2019 festival of [Suncheon Wangun Middle School](https://wangun.ms.jne.kr/).</strong>
 </div>
 
 - Built in Go and Vue.js.
